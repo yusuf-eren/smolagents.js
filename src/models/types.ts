@@ -64,8 +64,8 @@ export interface ChatMessageToolCallStreamDelta {
 
 export interface ChatMessageStreamDelta {
   content?: string;
-  tool_calls?: ChatMessageToolCallStreamDelta[];
-  token_usage?: TokenUsage;
+  toolCalls?: ChatMessageToolCallStreamDelta[];
+  tokenUsage?: TokenUsage;
 }
 
 export function getMessageRoles(): string[] {

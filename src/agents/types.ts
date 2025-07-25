@@ -1,6 +1,8 @@
 import type { ActionStep, FinalAnswerStep, PlanningStep } from '@/memory';
 import type { ChatMessageStreamDelta, ChatMessageToolCall } from '@/models';
+import type { AgentLogger, LogLevel, Timing } from '@/monitoring';
 import type { ToolCall, ToolOutput } from '@/tools';
+import type { Tool } from '@/tools/tool';
 
 export interface ActionOutput {
   output: any;
@@ -107,12 +109,6 @@ export interface TokenUsage {
   [key: string]: number;
 }
 
-export interface Timing {
-  start: number;
-  end: number;
-  duration: number;
-}
-
 export class RunResult {
   /**
    * Holds extended information about an agent run.
@@ -153,3 +149,25 @@ export type StreamEvent =
   | PlanningStep
   | ActionStep
   | FinalAnswerStep;
+
+export interface MultiStepAgentConfig {
+  tools: Tool[];
+  model: Model;
+  promptTemplates?: PromptTemplates;
+  instructions?: string;
+  maxSteps?: number;
+  addBaseTools?: boolean;
+  verbosityLevel?: LogLevel;
+  grammar?: Record<string, string>;
+  managedAgents?: any[];
+  stepCallbacks?:
+    | Array<CallableFunction>
+    | Record<string, CallableFunction | Array<CallableFunction>>;
+  planningInterval?: number;
+  name?: string;
+  description?: string;
+  provideRunSummary?: boolean;
+  finalAnswerChecks?: Array<CallableFunction>;
+  returnFullResult?: boolean;
+  logger?: AgentLogger;
+}
