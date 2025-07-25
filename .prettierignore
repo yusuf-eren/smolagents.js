@@ -1,0 +1,17 @@
+# Ignore artifacts:
+dist/
+build/
+coverage/
+
+# Ignore all files in node_modules
+node_modules/
+
+# Ignore config files
+package.json
+pnpm-lock.yaml
+tsconfig.json
+*.config.js
+*.config.ts
+
+# Ignore markdown files
+*.md 
