@@ -76,6 +76,10 @@ export default [
   },
   prettier,
   {
+    env: {
+      browser: true,
+      node: true,
+    },
     ignores: ['dist/', 'node_modules/', '*.js', '*.mjs'],
   },
 ]; 

@@ -1,3 +1,6 @@
+import type { Buffer } from 'node:buffer';
+
+import sharp from 'sharp';
 import { Logger } from 'winston';
 
 import { LogLevel } from '@/monitoring';
@@ -44,4 +47,13 @@ function makeJsonSerializable(obj: unknown): unknown {
   return JSON.parse(JSON.stringify(obj));
 }
 
-export { AgentError, escapeCodeBrackets, makeJsonSerializable };
+async function encodeImageBase64(imageBuffer: Buffer): Promise<string> {
+  const pngBuffer = await sharp(imageBuffer).png().toBuffer();
+  return pngBuffer.toString('base64');
+}
+
+function makeImageUrl(base64Image: string): string {
+  return `data:image/png;base64,${base64Image}`;
+}
+
+export { AgentError, escapeCodeBrackets, makeJsonSerializable, encodeImageBase64, makeImageUrl };

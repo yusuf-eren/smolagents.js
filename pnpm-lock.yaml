@@ -24,6 +24,11 @@ dependencies:
     specifier: 3.17.0
     version: 3.17.0
 
+optionalDependencies:
+  openai:
+    specifier: ^5.0.0
+    version: 5.10.2
+
 devDependencies:
   '@types/jest':
     specifier: ^29.5.11
@@ -3910,6 +3915,21 @@ packages:
     dependencies:
       mimic-fn: 2.1.0
     dev: true
+
+  /openai@5.10.2:
+    resolution: {integrity: sha512-n+vi74LzHtvlKcDPn9aApgELGiu5CwhaLG40zxLTlFQdoSJCLACORIPC2uVQ3JEYAbqapM+XyRKFy2Thej7bIw==}
+    hasBin: true
+    requiresBuild: true
+    peerDependencies:
+      ws: ^8.18.0
+      zod: ^3.23.8
+    peerDependenciesMeta:
+      ws:
+        optional: true
+      zod:
+        optional: true
+    dev: false
+    optional: true
 
   /optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}

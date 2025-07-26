@@ -1,6 +1,6 @@
 import type { ActionStep, FinalAnswerStep, PlanningStep } from '@/memory';
-import type { ChatMessageStreamDelta, ChatMessageToolCall } from '@/models';
-import type { AgentLogger, LogLevel, Timing } from '@/monitoring';
+import { type ChatMessageStreamDelta, type ChatMessageToolCall, Model } from '@/models';
+import { AgentLogger, LogLevel, Timing } from '@/monitoring';
 import type { ToolCall, ToolOutput } from '@/tools';
 import type { Tool } from '@/tools/tool';
 

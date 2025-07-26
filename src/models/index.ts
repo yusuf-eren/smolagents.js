@@ -8,4 +8,9 @@ export type {
   ChatMessageToolCall,
   ChatMessageToolCallFunction,
   ChatMessageToolCallStreamDelta,
+  ModelConfig,
+  PrepareCompletionParams,
+  GenerateParams,
 } from '@/models/types';
+
+export { Model } from '@/models/base';

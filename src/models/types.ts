@@ -1,4 +1,6 @@
 import type { TokenUsage } from '@/monitoring';
+import type { ChatMessage } from '@/models/chat-message';
+import type { Tool } from '@/tools';
 
 export enum MessageRole {
   USER = 'user',
@@ -79,3 +81,36 @@ export const toolRoleConversions: Record<
   [MessageRole.TOOL_CALL]: MessageRole.ASSISTANT,
   [MessageRole.TOOL_RESPONSE]: MessageRole.USER,
 };
+
+export interface ModelConfig {
+  flattenMessagesAsText?: boolean;
+  toolNameKey?: string;
+  toolArgumentsKey?: string;
+  modelId?: string;
+}
+
+export interface PrepareCompletionParams {
+  messages: Array<ChatMessage | Record<string, any>>;
+  stopSequences?: string[] | null;
+  responseFormat?: Record<string, string> | null;
+  toolsToCallFrom?: Tool[] | null;
+  customRoleConversions?: Record<string, string> | null;
+  convertImagesToImageUrls?: boolean;
+  flattenMessagesAsText?: boolean;
+  toolChoice?: string | Record<string, any> | null;
+  modelId?: string;
+}
+
+export interface GenerateParams {
+  messages: ChatMessage[];
+  stopSequences?: string[];
+  responseFormat?: Record<string, string>;
+  toolsToCallFrom?: Tool[];
+}
+
+export interface OpenAIGenerateParams {
+  messages: Array<ChatMessage | Record<string, any>>;
+  stopSequences?: string[];
+  responseFormat?: Record<string, string>;
+  toolsToCallFrom?: Tool[];
+}

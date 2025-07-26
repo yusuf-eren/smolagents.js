@@ -56,6 +56,12 @@
     "sharp": "0.34.3",
     "winston": "3.17.0"
   },
+  "peerDependencies": {
+    "openai": "^5.0.0"
+  },
+  "optionalDependencies": {
+  "openai": "^5.0.0"
+  },
   "engines": {
     "node": ">=18.0.0"
   },
