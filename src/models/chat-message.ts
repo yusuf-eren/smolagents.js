@@ -4,14 +4,14 @@ import {
   type ChatMessageToolCall,
   type ChatMessageToolCallStreamDelta,
 } from '@/models/types';
-import type { TokenUsage } from '@/monitoring';
+import { TokenUsage } from '@/monitoring';
 
 export class ChatMessage {
   role: MessageRole;
   content?: ChatMessageContent;
   toolCalls?: ChatMessageToolCall[];
   raw?: any;
-  tokenUsage?: TokenUsage;
+  tokenUsage: TokenUsage;
 
   constructor(params: {
     role: MessageRole;
@@ -24,7 +24,7 @@ export class ChatMessage {
 
     if (params.content) this.content = params.content;
     if (params.raw) this.raw = params.raw;
-    if (params.tokenUsage) this.tokenUsage = params.tokenUsage;
+    this.tokenUsage = params.tokenUsage || new TokenUsage(0, 0);
 
     if (Array.isArray(params.toolCalls) && params.toolCalls?.length > 0) {
       const toolCalls: ChatMessageToolCall[] = [];

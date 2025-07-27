@@ -34,12 +34,26 @@ export interface ToolCallOptions {
   sanitizeInputsOutputs?: boolean;
 }
 
-export interface ToolOutput {
+export class ToolOutput {
   id: string;
   output: any;
   isFinalAnswer: boolean;
   observation: string;
   toolCall: ToolCall;
+
+  constructor(params: {
+    id: string;
+    output: any;
+    isFinalAnswer: boolean;
+    observation: string;
+    toolCall: ToolCall;
+  }) {
+    this.id = params.id;
+    this.output = params.output;
+    this.isFinalAnswer = params.isFinalAnswer;
+    this.observation = params.observation;
+    this.toolCall = params.toolCall;
+  }
 }
 
 export class ToolCall {

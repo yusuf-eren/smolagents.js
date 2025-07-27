@@ -1,6 +1,6 @@
 import type { Sharp } from 'sharp';
 
-import { MemoryStep } from '@/memory';
+import { MemoryStep } from '@/memory/steps/memory';
 import { ChatMessage, MessageRole } from '@/models';
 
 export class TaskStep extends MemoryStep {

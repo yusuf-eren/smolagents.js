@@ -72,6 +72,25 @@ function makeImageUrl(base64Image: string): string {
   return `data:image/png;base64,${base64Image}`;
 }
 
+export function populateTemplate(template: string, variables: Record<string, any>): string {
+  return template.replace(/{{\s*([\w.]+)\s*}}/g, (_, key) => {
+    const value = getNestedValue(variables, key);
+    if (value === undefined) {
+      throw new Error(`Missing template variable: ${key}`);
+    }
+    return String(value);
+  });
+}
+
+function getNestedValue(obj: Record<string, any>, key: string): any {
+  return key.split('.').reduce((acc, part) => {
+    if (acc && typeof acc === 'object' && part in acc) {
+      return acc[part];
+    }
+    return undefined;
+  }, obj);
+}
+
 export {
   AgentError,
   AgentParsingError,

@@ -1,18 +1,18 @@
 import {
   ActionStep,
   PlanningStep,
-  SystemPromptStep,
+  system_promptStep,
   TaskStep,
   type MemoryStepTypes,
 } from '@/memory';
 import { LogLevel, type AgentLogger } from '@/monitoring';
 
 export class AgentMemory {
-  systemPrompt: SystemPromptStep;
+  system_prompt: system_promptStep;
   steps: MemoryStepTypes;
 
-  constructor(systemPrompt: string) {
-    this.systemPrompt = new SystemPromptStep(systemPrompt);
+  constructor(system_prompt: string) {
+    this.system_prompt = new system_promptStep(system_prompt);
     this.steps = [];
   }
 
@@ -55,7 +55,7 @@ export class AgentMemory {
     logger.console.log('log', "Replaying the agent's steps:");
     logger.logMarkdown({
       title: 'System prompt',
-      content: this.systemPrompt.systemPrompt,
+      content: this.system_prompt.system_prompt,
       level: LogLevel.ERROR,
     });
 

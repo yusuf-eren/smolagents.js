@@ -1,4 +1,4 @@
-import { MemoryStep } from '@/memory';
+import { MemoryStep } from '@/memory/steps/memory';
 
 export class FinalAnswerStep extends MemoryStep {
   output: any;

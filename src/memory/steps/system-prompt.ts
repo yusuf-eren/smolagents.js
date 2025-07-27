@@ -1,12 +1,12 @@
-import { MemoryStep } from '@/memory';
+import { MemoryStep } from '@/memory/steps/memory';
 import { ChatMessage, MessageRole } from '@/models';
 
-export class SystemPromptStep extends MemoryStep {
-  systemPrompt: string;
+export class system_promptStep extends MemoryStep {
+  system_prompt: string;
 
-  constructor(systemPrompt: string) {
+  constructor(system_prompt: string) {
     super();
-    this.systemPrompt = systemPrompt;
+    this.system_prompt = system_prompt;
   }
 
   override toMessages(summaryMode: boolean = false): ChatMessage[] {
@@ -16,7 +16,7 @@ export class SystemPromptStep extends MemoryStep {
     return [
       new ChatMessage({
         role: MessageRole.SYSTEM,
-        content: [{ type: 'text', text: this.systemPrompt }],
+        content: [{ type: 'text', text: this.system_prompt }],
       }),
     ];
   }

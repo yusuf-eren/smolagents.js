@@ -10,9 +10,8 @@ import type {
   PlanningStep,
   TaskStep,
   MemoryStep,
-  SystemPromptStep,
+  system_promptStep,
 } from '@/memory/steps';
-import type { ActionOutput } from '@/agents';
 
 interface ActionStepConfig {
   stepNumber: number;
@@ -25,7 +24,7 @@ interface ActionStepConfig {
   codeAction?: string;
   observations?: string;
   observationsImages?: Sharp[];
-  actionOutput?: ActionOutput;
+  actionOutput?: any;
   tokenUsage?: TokenUsage;
   isFinalAnswer?: boolean;
 }
@@ -39,7 +38,7 @@ interface PlanningStepConfig {
 }
 
 type MemoryStepTypes = Array<
-  TaskStep | ActionStep | PlanningStep | FinalAnswerStep | MemoryStep | SystemPromptStep
+  TaskStep | ActionStep | PlanningStep | FinalAnswerStep | MemoryStep | system_promptStep
 >;
 
 export type { ActionStepConfig, PlanningStepConfig, MemoryStepTypes };

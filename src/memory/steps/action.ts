@@ -1,7 +1,7 @@
 import type { Sharp } from 'sharp';
 
 import type { ActionStepConfig } from '@/memory';
-import { MemoryStep } from '@/memory';
+import { MemoryStep } from '@/memory/steps/memory';
 import { ChatMessage, MessageRole } from '@/models';
 import type { Timing, TokenUsage } from '@/monitoring';
 import type { ToolCall } from '@/tools';
@@ -20,7 +20,7 @@ export class ActionStep extends MemoryStep {
   codeAction?: string;
   observations?: string;
   observationsImages?: Sharp[];
-  actionOutput?: ActionOutput;
+  actionOutput?: any;
   tokenUsage?: TokenUsage;
   isFinalAnswer: boolean = false;
 

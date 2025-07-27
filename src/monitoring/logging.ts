@@ -1,4 +1,6 @@
-import boxen from 'boxen';
+import boxen, { type Options as BoxenOptions } from 'boxen';
+import Table from 'cli-table3';
+import readline from 'readline';
 import * as ch from 'cli-highlight';
 import winston from 'winston';
 
@@ -16,6 +18,8 @@ import {
   type LogTaskInputParams,
 } from '@/monitoring/types';
 import { escapeCodeBrackets } from '@/utils';
+import chalk from 'chalk';
+import type { Tool } from '@/tools';
 
 /**
  * Contains the timing information for a given step or run.
@@ -189,5 +193,116 @@ export class AgentLogger {
 
   // TODO: Complete this function after Agent and Tool classes are implemented.
   // TODO: Add Agent Type
-  // visualizeAgentTree(agent: Agent) {}
+  visualizeAgentTree(agent: any) {
+    const lines: string[] = [];
+
+    const getAgentHeadline = (agent: any, name?: string) => {
+      const nameHeadline = name ? `${name} | ` : '';
+      return chalk
+        .hex(YELLOW_HEX)
+        .bold(`${nameHeadline}${agent.constructor.name} | ${agent.model.modelId}`);
+    };
+
+    const createToolsSection = (tools: Record<string, Tool>) => {
+      const table = new Table({
+        head: ['Name', 'Description', 'Arguments'],
+        style: { head: ['cyan'], border: [] },
+        wordWrap: true,
+        colWidths: [20, 40, 60],
+      });
+
+      for (const [name, tool] of Object.entries(tools)) {
+        const args = Object.entries(tool.inputs || {})
+          .map(([argName, info]: any) => {
+            const type = Array.isArray(info.type) ? info.type.join('|') : info.type || 'Any';
+            const optional = info.optional ? ', optional' : '';
+            return `${argName} (\`${type}\`${optional}): ${info.description ?? ''}`;
+          })
+          .join('\n');
+        table.push([name, tool.description ?? String(tool), args]);
+      }
+
+      return [`🛠️ ${chalk.italic.hex('#1E90FF')('Tools:')}`, table.toString()];
+    };
+
+    const buildAgentTree = (agent: any, prefix = '') => {
+      const indent = (text: string, depth: number) => '  '.repeat(depth) + text;
+
+      const toolSection = createToolsSection(agent.tools);
+      lines.push(indent(toolSection[0] ?? '', prefix.length / 2));
+      lines.push(indent(toolSection[1] ?? '', prefix.length / 2));
+
+      if (agent.managedAgents) {
+        lines.push(
+          indent('🤖 ' + chalk.italic.hex('#1E90FF')('Managed agents:'), prefix.length / 2)
+        );
+        for (const [name, managed_agent] of Object.entries(agent.managedAgents) as any) {
+          const header = getAgentHeadline(managed_agent, name);
+          lines.push(indent(header, prefix.length / 2 + 1));
+          if (managed_agent.constructor.name === 'CodeAgent') {
+            lines.push(
+              indent(
+                `✅ ${chalk.italic.hex('#1E90FF')('Authorized imports:')} ${managed_agent.additionalAuthorizedImports.join(', ')}`,
+                prefix.length / 2 + 2
+              )
+            );
+          }
+          lines.push(
+            indent(
+              `📝 ${chalk.italic.hex('#1E90FF')('Description:')} ${managed_agent.description}`,
+              prefix.length / 2 + 2
+            )
+          );
+          buildAgentTree(managed_agent, prefix + '  ');
+        }
+      }
+    };
+
+    const mainHeadline = getAgentHeadline(agent);
+    lines.push(mainHeadline);
+    if (agent.constructor.name === 'CodeAgent') {
+      lines.push(
+        `✅ ${chalk.italic.hex('#1E90FF')('Authorized imports:')} ${agent.additionalAuthorizedImports.join(', ')}`
+      );
+    }
+    buildAgentTree(agent);
+
+    this.console.info(lines.join('\n'));
+  }
+}
+
+export class LiveBox {
+  logger: AgentLogger;
+  boxed: boolean;
+  private content = '';
+  private options: BoxenOptions = {
+    padding: 1,
+    borderStyle: 'round',
+    borderColor: 'yellow',
+  };
+
+  constructor(initialContent = '', boxed = true, logger: AgentLogger) {
+    this.boxed = boxed;
+    this.content = initialContent;
+    this.logger = logger;
+    this.render();
+  }
+
+  update(newContent: string, language: 'json' | 'md' | 'ts' = 'md') {
+    this.content = newContent;
+    this.render(language);
+  }
+
+  private render(language: string = 'md') {
+    readline.cursorTo(process.stdout, 0, 0);
+    readline.clearScreenDown(process.stdout);
+    let content = ch.highlight(this.content, { language, ignoreIllegals: true });
+    if (this.boxed) {
+      content = boxen(content, {
+        ...this.options,
+      });
+    }
+
+    this.logger.log(content, { level: LogLevel.INFO });
+  }
 }

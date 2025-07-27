@@ -18,17 +18,17 @@ export interface PlanningPromptTemplate {
   /**
    * Initial plan prompt.
    */
-  initialPlan: string;
+  initial_plan: string;
 
   /**
    * Update plan pre-messages prompt.
    */
-  updatePlanPreMessages: string;
+  update_plan_pre_messages: string;
 
   /**
    * Update plan post-messages prompt.
    */
-  updatePlanPostMessages: string;
+  update_plan_post_messages: string;
 }
 
 export interface ManagedAgentPromptTemplate {
@@ -46,34 +46,34 @@ export interface ManagedAgentPromptTemplate {
 /**
  * Prompt templates for the final answer.
  *
- * @property preMessages Pre-messages prompt.
- * @property postMessages Post-messages prompt.
+ * @property pre_messages Pre-messages prompt.
+ * @property post_messages Post-messages prompt.
  */
 export interface FinalAnswerPromptTemplate {
   /**
    * Pre-messages prompt.
    */
-  preMessages: string;
+  pre_messages: string;
 
   /**
    * Post-messages prompt.
    */
-  postMessages: string;
+  post_messages: string;
 }
 
 /**
  * Prompt templates for the agent.
  *
- * @property systemPrompt System prompt.
+ * @property system_prompt System prompt.
  * @property planning Planning prompt templates.
- * @property managedAgent Managed agent prompt templates.
- * @property finalAnswer Final answer prompt templates.
+ * @property managed_agent Managed agent prompt templates.
+ * @property managed_agent Final answer prompt templates.
  */
 export interface PromptTemplates {
   /**
    * System prompt.
    */
-  systemPrompt: string;
+  system_prompt: string;
 
   /**
    * Planning prompt templates.
@@ -83,28 +83,28 @@ export interface PromptTemplates {
   /**
    * Managed agent prompt templates.
    */
-  managedAgent: ManagedAgentPromptTemplate;
+  managed_agent: ManagedAgentPromptTemplate;
 
   /**
    * Final answer prompt templates.
    */
-  finalAnswer: FinalAnswerPromptTemplate;
+  final_answer: FinalAnswerPromptTemplate;
 }
 
 export const EMPTY_PROMPT_TEMPLATES: PromptTemplates = {
-  systemPrompt: '',
+  system_prompt: '',
   planning: {
-    initialPlan: '',
-    updatePlanPreMessages: '',
-    updatePlanPostMessages: '',
+    initial_plan: '',
+    update_plan_pre_messages: '',
+    update_plan_post_messages: '',
   },
-  managedAgent: {
+  managed_agent: {
     task: '',
     report: '',
   },
-  finalAnswer: {
-    preMessages: '',
-    postMessages: '',
+  final_answer: {
+    pre_messages: '',
+    post_messages: '',
   },
 };
 

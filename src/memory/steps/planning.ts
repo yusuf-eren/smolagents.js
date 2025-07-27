@@ -1,5 +1,5 @@
 import type { PlanningStepConfig } from '@/memory';
-import { MemoryStep } from '@/memory';
+import { MemoryStep } from '@/memory/steps/memory';
 import { ChatMessage, MessageRole } from '@/models';
 import type { Timing, TokenUsage } from '@/monitoring';
 
