@@ -6,5 +6,5 @@ export {
   SystemPromptStep,
   TaskStep,
 } from '@/memory/steps';
-export type { ActionStepConfig, PlanningStepConfig } from '@/memory/types';
+export type { ActionStepConfig, PlanningStepConfig, MemoryStepTypes } from '@/memory/types';
 export { CallbackRegistry, AgentMemory } from '@/memory/memory';

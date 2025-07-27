@@ -1,18 +1,17 @@
 import chalk from 'chalk';
-import type { Logger } from 'winston';
 
-import type { Timing } from './logging';
-import { LogLevel } from './types';
-import { TokenUsage } from './usage';
+import type { AgentLogger, Timing } from '@/monitoring/logging';
+import { LogLevel } from '@/monitoring/types';
+import { TokenUsage } from '@/monitoring/usage';
 
 export class Monitor {
   stepDurations: number[];
   trackedModel: string;
-  logger: Logger;
+  logger: AgentLogger;
   totalInputTokenCount: number;
   totalOutputTokenCount: number;
 
-  constructor(trackedModel: string, logger: Logger) {
+  constructor(trackedModel: string, logger: AgentLogger) {
     this.stepDurations = [];
     this.trackedModel = trackedModel;
     this.logger = logger;
@@ -45,9 +44,8 @@ export class Monitor {
     }
     consoleOutputs += ']';
 
-    this.logger.log({
+    this.logger.log(chalk.dim(consoleOutputs), {
       level: LogLevel.INFO,
-      message: chalk.dim(consoleOutputs),
     });
   }
 }

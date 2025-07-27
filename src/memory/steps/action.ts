@@ -7,6 +7,7 @@ import type { Timing, TokenUsage } from '@/monitoring';
 import type { ToolCall } from '@/tools';
 import type { AgentError } from '@/utils';
 import { makeJsonSerializable } from '@/utils';
+import { ActionOutput } from '@/agents';
 
 export class ActionStep extends MemoryStep {
   stepNumber: number;
@@ -19,7 +20,7 @@ export class ActionStep extends MemoryStep {
   codeAction?: string;
   observations?: string;
   observationsImages?: Sharp[];
-  actionOutput?: any;
+  actionOutput?: ActionOutput;
   tokenUsage?: TokenUsage;
   isFinalAnswer: boolean = false;
 
@@ -35,7 +36,7 @@ export class ActionStep extends MemoryStep {
     if (config.codeAction) this.codeAction = config.codeAction;
     if (config.observations) this.observations = config.observations;
     if (config.observationsImages) this.observationsImages = config.observationsImages;
-    if (config.actionOutput) this.actionOutput = config.actionOutput;
+    if (config.actionOutput) this.actionOutput = new ActionOutput(config.actionOutput);
     if (config.tokenUsage) this.tokenUsage = config.tokenUsage;
     if (config.isFinalAnswer) this.isFinalAnswer = config.isFinalAnswer;
   }

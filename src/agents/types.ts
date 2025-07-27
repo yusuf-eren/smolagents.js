@@ -1,12 +1,17 @@
 import type { ActionStep, FinalAnswerStep, PlanningStep } from '@/memory';
 import { type ChatMessageStreamDelta, type ChatMessageToolCall, Model } from '@/models';
-import { AgentLogger, LogLevel, Timing } from '@/monitoring';
+import { AgentLogger, LogLevel, Timing, TokenUsage } from '@/monitoring';
 import type { ToolCall, ToolOutput } from '@/tools';
 import type { Tool } from '@/tools/tool';
 
-export interface ActionOutput {
+export class ActionOutput {
   output: any;
   isFinalAnswer: boolean;
+
+  constructor({ output, isFinalAnswer }: { output: any; isFinalAnswer: boolean }) {
+    this.output = output;
+    this.isFinalAnswer = isFinalAnswer;
+  }
 }
 
 export interface PlanningPromptTemplate {
@@ -105,10 +110,6 @@ export const EMPTY_PROMPT_TEMPLATES: PromptTemplates = {
 
 export type RunResultState = 'success' | 'max_steps_error';
 
-export interface TokenUsage {
-  [key: string]: number;
-}
-
 export class RunResult {
   /**
    * Holds extended information about an agent run.
@@ -122,20 +123,20 @@ export class RunResult {
   output?: any;
   state: RunResultState;
   messages: Array<Record<string, any>>;
-  token_usage: TokenUsage | null;
+  token_usage?: TokenUsage;
   timing: Timing;
 
   constructor(params: {
     output?: any;
     state: RunResultState;
     messages: Array<Record<string, any>>;
-    token_usage: TokenUsage | null;
+    token_usage?: TokenUsage;
     timing: Timing;
   }) {
     if (params.output) this.output = params.output;
     this.state = params.state;
     this.messages = params.messages;
-    this.token_usage = params.token_usage;
+    if (params.token_usage) this.token_usage = params.token_usage;
     this.timing = params.timing;
   }
 }

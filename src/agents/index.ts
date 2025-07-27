@@ -1,6 +1,5 @@
 export { EMPTY_PROMPT_TEMPLATES } from '@/agents/types';
 export type {
-  ActionOutput,
   FinalAnswerPromptTemplate,
   ManagedAgentPromptTemplate,
   PlanningPromptTemplate,
@@ -8,5 +7,5 @@ export type {
   RunResult,
   RunResultState,
   StreamEvent,
-  TokenUsage,
 } from '@/agents/types';
+export { ActionOutput } from '@/agents/types';

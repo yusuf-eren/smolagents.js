@@ -14,3 +14,4 @@ export type {
 } from '@/models/types';
 
 export { Model } from '@/models/base';
+export { OpenAIServerModel } from '@/models/api-models/openai';

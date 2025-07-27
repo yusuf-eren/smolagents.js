@@ -1,3 +1,5 @@
+import { makeJsonSerializable } from '@/utils';
+
 export type ToolInputSpec = Record<string, string | typeof Function | boolean>;
 
 export type ToolInputs = Record<string, ToolInputSpec>;
@@ -57,8 +59,17 @@ export class ToolCall {
       type: 'function',
       function: {
         name: this.name,
-        arguments: makeJsonSerializable(this.arguments), // keep this way for now.
+        arguments: makeJsonSerializable(this.arguments),
       },
     };
   }
+}
+
+export interface PreTool {
+  name: string;
+  inputs: Record<string, string>;
+  output_type: any;
+  task: string;
+  description: string;
+  repo_id: string;
 }

@@ -1,11 +1,15 @@
-import { ActionStep, PlanningStep, SystemPromptStep, TaskStep } from '@/memory';
+import {
+  ActionStep,
+  PlanningStep,
+  SystemPromptStep,
+  TaskStep,
+  type MemoryStepTypes,
+} from '@/memory';
 import { LogLevel, type AgentLogger } from '@/monitoring';
-
-type MemoryStep = Array<TaskStep | ActionStep | PlanningStep>;
 
 export class AgentMemory {
   systemPrompt: SystemPromptStep;
-  steps: MemoryStep;
+  steps: MemoryStepTypes;
 
   constructor(systemPrompt: string) {
     this.systemPrompt = new SystemPromptStep(systemPrompt);
@@ -120,7 +124,7 @@ export class AgentMemory {
 }
 
 type StepConstructor<T = any> = new (...args: any[]) => T;
-type CallbackFn = (step: any, kwargs?: Record<string, any>) => void;
+export type CallbackFn = (step: any, kwargs?: Record<string, any>) => void;
 
 /**
  * Registry for callbacks that are called at each step of the agent's execution.

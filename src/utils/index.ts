@@ -1,9 +1,7 @@
 import type { Buffer } from 'node:buffer';
 
 import sharp from 'sharp';
-import { Logger } from 'winston';
-
-import { LogLevel } from '@/monitoring';
+import { AgentLogger, LogLevel } from '@/monitoring';
 
 /**
  * Escapes square brackets in code segments while preserving Rich styling tags.
@@ -32,16 +30,34 @@ class AgentError extends Error {
    * @param message The error message
    * @param logger An AgentLogger instance
    */
-  constructor(message: string, logger: Logger) {
+  constructor(message: string, logger: AgentLogger) {
     super(message);
     this.name = new.target.name;
-    logger.log(LogLevel.ERROR, message);
+    logger.log(message, { level: LogLevel.ERROR });
   }
 
   toJSON(): { type: string; message: string } {
     return { type: this.constructor.name, message: String(this.message) };
   }
 }
+
+// Exception raised for errors in parsing in the agent
+class AgentParsingError extends AgentError {}
+
+// Exception raised for errors in execution in the agent
+class AgentExecutionError extends AgentError {}
+
+// Exception raised when maximum steps exceeded
+class AgentMaxStepsError extends AgentError {}
+
+// Exception raised for errors when incorrect arguments are passed to the tool
+class AgentToolCallError extends AgentExecutionError {}
+
+// Exception raised for errors when executing a tool
+class AgentToolExecutionError extends AgentExecutionError {}
+
+// Exception raised for errors in generation in the agent
+class AgentGenerationError extends AgentError {}
 
 function makeJsonSerializable(obj: unknown): unknown {
   return JSON.parse(JSON.stringify(obj));
@@ -56,4 +72,16 @@ function makeImageUrl(base64Image: string): string {
   return `data:image/png;base64,${base64Image}`;
 }
 
-export { AgentError, escapeCodeBrackets, makeJsonSerializable, encodeImageBase64, makeImageUrl };
+export {
+  AgentError,
+  AgentParsingError,
+  AgentExecutionError,
+  AgentMaxStepsError,
+  AgentToolCallError,
+  AgentToolExecutionError,
+  AgentGenerationError,
+  escapeCodeBrackets,
+  makeJsonSerializable,
+  encodeImageBase64,
+  makeImageUrl,
+};

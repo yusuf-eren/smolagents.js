@@ -4,6 +4,15 @@ import type { ChatMessage } from '@/models';
 import type { Timing, TokenUsage } from '@/monitoring';
 import type { ToolCall } from '@/tools';
 import type { AgentError } from '@/utils';
+import type {
+  ActionStep,
+  FinalAnswerStep,
+  PlanningStep,
+  TaskStep,
+  MemoryStep,
+  SystemPromptStep,
+} from '@/memory/steps';
+import type { ActionOutput } from '@/agents';
 
 interface ActionStepConfig {
   stepNumber: number;
@@ -16,9 +25,9 @@ interface ActionStepConfig {
   codeAction?: string;
   observations?: string;
   observationsImages?: Sharp[];
-  actionOutput?: any;
+  actionOutput?: ActionOutput;
   tokenUsage?: TokenUsage;
-  isFinalAnswer: boolean;
+  isFinalAnswer?: boolean;
 }
 
 interface PlanningStepConfig {
@@ -29,4 +38,8 @@ interface PlanningStepConfig {
   tokenUsage?: TokenUsage;
 }
 
-export type { ActionStepConfig, PlanningStepConfig };
+type MemoryStepTypes = Array<
+  TaskStep | ActionStep | PlanningStep | FinalAnswerStep | MemoryStep | SystemPromptStep
+>;
+
+export type { ActionStepConfig, PlanningStepConfig, MemoryStepTypes };
