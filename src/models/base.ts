@@ -4,6 +4,7 @@ import {
   type GenerateParams,
   type ModelConfig,
   type PrepareCompletionParams,
+  type ChatMessageStreamDelta,
 } from '@/models';
 import {
   getCleanMessageList,
@@ -112,9 +113,24 @@ export class Model {
     throw new Error('generate() must be implemented in child classes');
   }
 
-  call(params: Parameters<this['generate']>): ReturnType<this['generate']> {
-    // @ts-expect-error: dynamic forwarding to abstract method
-    return this.generate(params);
+  async *generateStream(_params: GenerateParams): AsyncGenerator<ChatMessageStreamDelta> {
+    throw new Error('generateStream() must be implemented in child classes');
+  }
+
+  call(args: Parameters<this['generate']>[0], stream: false): ReturnType<this['generate']>;
+  call(
+    args: Parameters<this['generateStream']>[0],
+    stream: true
+  ): ReturnType<this['generateStream']>;
+  call(
+    args: Parameters<this['generate']>[0],
+    stream: boolean = false
+  ): ReturnType<this['generate']> | ReturnType<this['generateStream']> {
+    if (stream) {
+      return this.generateStream(args) as ReturnType<this['generateStream']>;
+    } else {
+      return this.generate(args) as ReturnType<this['generate']>;
+    }
   }
 
   parseToolCalls(message: ChatMessage): ChatMessage {

@@ -114,3 +114,10 @@ export interface OpenAIGenerateParams {
   responseFormat?: Record<string, string>;
   toolsToCallFrom?: Tool[];
 }
+
+export interface OpenAIGenerateStreamParams {
+  messages: Array<ChatMessage | Record<string, any>>;
+  stopSequences?: string[] | null;
+  responseFormat?: Record<string, string> | null;
+  toolsToCallFrom?: Tool[] | null;
+}

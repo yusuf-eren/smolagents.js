@@ -1,4 +1,9 @@
-import { MessageRole, type ChatMessageContent, type ChatMessageToolCall } from '@/models/types';
+import {
+  MessageRole,
+  type ChatMessageContent,
+  type ChatMessageToolCall,
+  type ChatMessageToolCallStreamDelta,
+} from '@/models/types';
 import type { TokenUsage } from '@/monitoring';
 
 export class ChatMessage {
@@ -53,6 +58,47 @@ export class ChatMessage {
           JSON.stringify({ tool: tool.function.name, arguments: tool.function.arguments })
         )
         .join('\n');
+    }
+    return rendered;
+  }
+}
+
+export class ChatMessageStreamDelta {
+  content?: string;
+  toolCalls?: ChatMessageToolCallStreamDelta[];
+  tokenUsage?: TokenUsage;
+
+  constructor(params: {
+    content?: string;
+    toolCalls?: ChatMessageToolCallStreamDelta[];
+    tokenUsage?: TokenUsage;
+  }) {
+    if (params.content) this.content = params.content;
+    if (params.tokenUsage) this.tokenUsage = params.tokenUsage;
+
+    if (Array.isArray(params.toolCalls) && params.toolCalls.length > 0) {
+      this.toolCalls = params.toolCalls;
+    }
+  }
+
+  toJSON(): string {
+    return JSON.stringify({
+      content: this.content,
+      toolCalls: this.toolCalls,
+      tokenUsage: this.tokenUsage,
+    });
+  }
+
+  renderAsMarkdown(): string {
+    let rendered = this.content ?? '';
+    if (this.toolCalls) {
+      rendered +=
+        '\n' +
+        this.toolCalls
+          .map(tool =>
+            JSON.stringify({ tool: tool.function?.name, arguments: tool.function?.arguments })
+          )
+          .join('\n');
     }
     return rendered;
   }

@@ -145,11 +145,8 @@ export async function getCleanMessageList(
   flattenMessagesAsText: boolean = false
 ): Promise<Array<Record<string, any>>> {
   const outputMessageList: Array<Record<string, any>> = [];
-  const messageListCopy = JSON.parse(JSON.stringify(messageList)) as Array<
-    ChatMessage | Record<string, any>
-  >;
 
-  for (let message of messageListCopy) {
+  for (let message of messageList) {
     if (!(message instanceof ChatMessage)) {
       message = new ChatMessage({
         role: message['role'],
