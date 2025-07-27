@@ -53,7 +53,7 @@ export class Model {
    * @param params - The parameters for preparing completion kwargs.
    * @returns An object containing the completion kwargs.
    */
-  prepareCompletionParams({
+  async prepareCompletionParams({
     messages,
     stopSequences = null,
     responseFormat = null,
@@ -63,9 +63,9 @@ export class Model {
     flattenMessagesAsText,
     toolChoice = 'required',
     modelId = '',
-  }: PrepareCompletionParams): Record<string, any> {
+  }: PrepareCompletionParams): Promise<Record<string, any>> {
     // Standardize message list
-    const messagesAsDicts = getCleanMessageList(
+    const messagesAsDicts = await getCleanMessageList(
       messages,
       customRoleConversions ?? {},
       convertImagesToImageUrls,
