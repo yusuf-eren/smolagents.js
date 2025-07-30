@@ -55,15 +55,18 @@ export class OpenAIServerModel extends ApiModel {
   }
 
   protected createClient(clientOptions?: Record<string, any>): OpenAIClientType {
+    let client: any;
     try {
       const require = createRequire(import.meta.url);
       const { OpenAI } = require('openai');
-      const options = clientOptions ?? this.clientOptions;
-      return new OpenAI(options);
+      client = OpenAI;
     } catch (e) {
       console.error(e);
       throw new Error("Optional dependency 'openai' not installed.");
     }
+
+    const options = clientOptions ?? this.clientOptions;
+    return new client(options);
   }
 
   override async generate(params: OpenAIGenerateParams): Promise<ChatMessage> {

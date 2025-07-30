@@ -31,7 +31,8 @@
     "verbatimModuleSyntax": true,
     "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "smolagents.js": ["src/index"]
     }
   },
   "include": [

@@ -23,6 +23,7 @@ const agent = new ToolCallingAgent({
     modelId: 'gpt-4o',
     apiKey: process.env['OPENAI_API_KEY'] as string,
   }),
+  streamOutputs: true,
 });
 
 await agent.run('Hello, how is the weather in New York?');
