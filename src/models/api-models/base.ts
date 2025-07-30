@@ -1,5 +1,6 @@
 import { Model, type ModelConfig } from '@/models';
 import { RateLimiter } from '@/models/rate-limiter';
+import { toolRoleConversions } from '@/models/types';
 
 export interface ApiModelConfig extends ModelConfig {
   modelId: string;
@@ -15,13 +16,13 @@ export abstract class ApiModel extends Model {
 
   constructor({
     modelId,
-    customRoleConversions = {},
+    customRoleConversions,
     client = null,
     requestsPerMinute,
     ...rest
   }: ApiModelConfig) {
     super({ modelId, ...rest });
-    this.customRoleConversions = customRoleConversions;
+    this.customRoleConversions = customRoleConversions ?? toolRoleConversions;
     this.rateLimiter = new RateLimiter(requestsPerMinute);
   }
 

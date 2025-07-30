@@ -65,7 +65,7 @@ export class ToolCallingAgent extends MultiStepAgent {
     this.streamOutputs = streamOutputs;
     if (this.streamOutputs && !('generateStream' in this.model)) {
       throw new Error(
-        '`stream_outputs` is set to True, but the model class implements no `generateStream` method.'
+        '`streamOutputs` is set to True, but the model class implements no `generateStream` method.'
       );
     }
 
@@ -80,7 +80,6 @@ export class ToolCallingAgent extends MultiStepAgent {
       customInstructions: this.instructions ?? '',
     });
 
-    console.log('----system_prompt', system_prompt);
     return system_prompt;
   }
 

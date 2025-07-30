@@ -6,6 +6,7 @@ import {
   type OpenAIGenerateParams,
   type ChatMessageToolCallFunction,
   type OpenAIGenerateStreamParams,
+  toolRoleConversions,
 } from '@/models/types';
 import { createRequire } from 'module';
 
@@ -45,7 +46,7 @@ export class OpenAIServerModel extends ApiModel {
     super({
       modelId,
       flattenMessagesAsText,
-      customRoleConversions: customRoleConversions ?? {},
+      customRoleConversions: customRoleConversions ?? toolRoleConversions,
       ...rest,
     });
 
@@ -73,8 +74,6 @@ export class OpenAIServerModel extends ApiModel {
       toolsToCallFrom: params.toolsToCallFrom ?? null,
       modelId: this.modelId ?? '',
     });
-
-    console.log('_--callling params---', JSON.stringify(completionParams, null, 4));
 
     await this.applyRateLimit();
     const response = await this.client.chat.completions.create({
@@ -117,8 +116,6 @@ export class OpenAIServerModel extends ApiModel {
     });
 
     await this.applyRateLimit();
-
-    console.log('_--callling params---', JSON.stringify(completionParams, null, 4));
 
     const stream = await this.client.chat.completions.create({
       model: this.modelId ?? 'gpt-4o-mini',
