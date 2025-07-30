@@ -82,21 +82,19 @@ export function agglomerateStreamDeltas(
     }
   }
 
-  const toolCalls: ChatMessageToolCall[] = Object.values(accumulatedToolCalls)
-    .filter(delta => delta.function)
-    .map(delta => ({
-      function: {
-        name: delta.function!.name,
-        arguments: delta.function!.arguments,
-      },
-      id: delta.id ?? '',
-      type: 'function',
-    }));
-
   return new ChatMessage({
-    role,
+    role: role,
     content: accumulatedContent,
-    toolCalls,
+    toolCalls: Object.values(accumulatedToolCalls)
+      .filter(toolCallStreamDelta => toolCallStreamDelta.function)
+      .map(toolCallStreamDelta => ({
+        function: {
+          name: toolCallStreamDelta.function!.name,
+          arguments: toolCallStreamDelta.function!.arguments,
+        },
+        id: toolCallStreamDelta.id || '',
+        type: 'function',
+      })),
     tokenUsage: new TokenUsage(totalInputTokens, totalOutputTokens),
   });
 }

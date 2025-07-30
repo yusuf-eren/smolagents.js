@@ -47,7 +47,7 @@ export class AgentMemory {
    *                   Careful: will increase log length exponentially. Use only for debugging.
    */
   replay(logger: AgentLogger, detailed: boolean = false): void {
-    logger.console.log('log', "Replaying the agent's steps:");
+    logger.console.log(LogLevel.INFO, "Replaying the agent's steps:");
     logger.logMarkdown({
       title: 'System prompt',
       content: this.system_prompt.system_prompt,

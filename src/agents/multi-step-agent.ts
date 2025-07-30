@@ -40,6 +40,7 @@ import {
   AgentParsingError,
   populateTemplate,
 } from '@/utils';
+import chalk from 'chalk';
 
 interface MultiStepAgentConfig {
   tools: Tool[];
@@ -466,8 +467,9 @@ export abstract class MultiStepAgent {
 
           if (output instanceof ActionOutput && output.isFinalAnswer) {
             finalAnswer = output.output;
-            // TODO: Put colors with chalk #FFD600
-            this.logger.log(`Final answer: ${finalAnswer}`, { level: LogLevel.INFO });
+            this.logger.log(chalk.hex('#FFD600')(`Final answer: ${finalAnswer}`), {
+              level: LogLevel.INFO,
+            });
 
             if (this.finalAnswerChecks && this.finalAnswerChecks.length > 0) {
               await this._validateFinalAnswer(finalAnswer);

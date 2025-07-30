@@ -32,8 +32,6 @@ export class LiveBox {
         ...this.options,
       });
     }
-
-    console.log(content);
   }
 }
 

@@ -60,7 +60,7 @@ export class Model {
     stopSequences = null,
     responseFormat = null,
     toolsToCallFrom = null,
-    customRoleConversions = null,
+    customRoleConversions,
     convertImagesToImageUrls = false,
     flattenMessagesAsText,
     toolChoice = 'required',
