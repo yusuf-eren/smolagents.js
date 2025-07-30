@@ -36,6 +36,7 @@
     "@types/jest": "^29.5.11",
     "@types/js-yaml": "4.0.9",
     "@types/node": "^20.10.6",
+    "@types/nunjucks": "3.2.6",
     "@typescript-eslint/eslint-plugin": "^6.18.1",
     "@typescript-eslint/parser": "^6.18.1",
     "eslint": "^8.56.0",
@@ -56,6 +57,7 @@
     "cli-highlight": "2.1.11",
     "cli-table3": "0.6.5",
     "js-yaml": "4.1.0",
+    "nunjucks": "3.2.4",
     "sharp": "0.34.3",
     "winston": "3.17.0"
   },

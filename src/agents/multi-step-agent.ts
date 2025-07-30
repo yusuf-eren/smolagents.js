@@ -153,7 +153,7 @@ export abstract class MultiStepAgent {
     this._setupTools(config.tools, config.addBaseTools ?? false);
     this._validateToolsAndManagedAgents(config.tools, config.managedAgents);
 
-    this.memory = new AgentMemory(this.system_prompt);
+    this.memory = new AgentMemory(this.systemPrompt);
     this.monitor = new Monitor(
       this.model.modelId ?? '',
       this.logger ?? new AgentLogger(LogLevel.INFO)
@@ -269,11 +269,7 @@ export abstract class MultiStepAgent {
     this.stepCallbacks.register(ActionStep, this.monitor.updateMetrics);
   }
 
-  get system_prompt(): string {
-    return this.instructions ?? '';
-  }
-
-  set system_prompt(_: string) {
+  set systemPrompt(_: string) {
     throw new Error(
       "The 'system_prompt' property is read-only. Use 'this.promptTemplates[\"system_prompt\"]' instead."
     );
@@ -305,7 +301,7 @@ export abstract class MultiStepAgent {
         ${JSON.stringify(additionalArgs)}.`;
     }
 
-    this.memory.system_prompt = new SystemPromptStep(this.system_prompt);
+    this.memory.system_prompt = new SystemPromptStep(this.systemPrompt);
     if (reset) {
       this.memory.reset();
       this.monitor.reset();
@@ -549,8 +545,8 @@ export abstract class MultiStepAgent {
               type: 'text',
               text: populateTemplate(this.promptTemplates['planning']['initial_plan'], {
                 task,
-                tools: this.tools,
-                managed_agents: this.managedAgents,
+                tools: this.tools ?? {},
+                managedAgents: this.managedAgents ?? {},
               }),
             },
           ],
@@ -609,9 +605,9 @@ export abstract class MultiStepAgent {
             type: 'text',
             text: populateTemplate(this.promptTemplates['planning']['update_plan_post_messages'], {
               task: task,
-              tools: this.tools,
-              managed_agents: this.managedAgents,
-              remaining_steps: this.maxSteps - stepNumber,
+              tools: this.tools ?? {},
+              managedAgents: this.managedAgents ?? {},
+              remainingSteps: this.maxSteps - stepNumber,
             }),
           },
         ],
@@ -704,7 +700,14 @@ export abstract class MultiStepAgent {
    * To be implemented in child classes.
    * Should initialize and return the system prompt string.
    */
-  abstract initializesystem_prompt(): string;
+  abstract initializeSystemPrompt(): string;
+
+  /**
+   *
+   */
+  get systemPrompt(): string {
+    return this.initializeSystemPrompt();
+  }
 
   /**
    * Interrupts the agent execution.
@@ -858,7 +861,7 @@ export abstract class MultiStepAgent {
   async call(task: string, kwargs: Record<string, any> = {}): Promise<string> {
     // Compose the full task prompt for the managed agent
     const fullTask = populateTemplate(this.promptTemplates['managed_agent']['task'], {
-      name: this.name,
+      name: this.name ?? '',
       task,
     });
 
@@ -872,8 +875,8 @@ export abstract class MultiStepAgent {
 
     // Compose the answer using the report
     let answer = populateTemplate(this.promptTemplates['managed_agent']['report'], {
-      name: this.name,
-      final_answer: report,
+      name: this.name ?? '',
+      finalAnswer: report,
     });
 
     // Optionally append a summary of the agent's work

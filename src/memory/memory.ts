@@ -119,7 +119,7 @@ export class AgentMemory {
 }
 
 // type StepConstructor = new (...args: any[]) => any;
-export type CallbackFn = (step: any, kwargs?: Record<string, any>) => void;
+export type CallbackFn = CallableFunction;
 
 /**
  * Registry for callbacks that are called at each step of the agent's execution.

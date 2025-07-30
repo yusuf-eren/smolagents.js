@@ -1,7 +1,10 @@
 import type { Buffer } from 'node:buffer';
 
+import nunjucks from 'nunjucks';
 import sharp from 'sharp';
 import { AgentLogger, LogLevel } from '@/monitoring';
+import type { BaseTool } from '@/tools/tool';
+import type { MultiStepAgent } from '@/agents/multi-step-agent';
 
 /**
  * Escapes square brackets in code segments while preserving Rich styling tags.
@@ -72,25 +75,57 @@ function makeImageUrl(base64Image: string): string {
   return `data:image/png;base64,${base64Image}`;
 }
 
-export function populateTemplate(template: string, variables: Record<string, any>): string {
-  return template.replace(/{{\s*([\w.]+)\s*}}/g, (_, key) => {
-    const value = getNestedValue(variables, key);
-    if (value === undefined) {
-      throw new Error(`Missing template variable: ${key}`);
-    }
-    return String(value);
+function toToolCallingPrompt(tool: {
+  name: string;
+  description: string;
+  inputs: Record<string, any>;
+  outputType: any;
+}): string {
+  return `${tool.name}: ${tool.description}
+    Takes inputs: ${JSON.stringify(tool.inputs)}
+    Returns an output of type: ${JSON.stringify(tool.outputType)}`;
+}
+
+export interface RenderContextTemplate {
+  toolsArray: BaseTool[];
+  managedAgentsArray?: MultiStepAgent[] | undefined;
+  customInstructions?: string | undefined;
+  task?: string | undefined;
+  remainingSteps?: number | undefined;
+  name?: string | undefined;
+  finalAnswer?: string | undefined;
+}
+
+function populateTemplate(
+  template: string,
+  rawContext: {
+    tools?: Record<string, BaseTool>;
+    managedAgents?: Record<string, MultiStepAgent> | undefined;
+    customInstructions?: string;
+    task?: string;
+    remainingSteps?: number;
+    name?: string;
+    finalAnswer?: string;
+  }
+): string {
+  const env = new nunjucks.Environment(undefined, {
+    autoescape: false,
   });
-}
 
-function getNestedValue(obj: Record<string, any>, key: string): any {
-  return key.split('.').reduce((acc, part) => {
-    if (acc && typeof acc === 'object' && part in acc) {
-      return acc[part];
-    }
-    return undefined;
-  }, obj);
-}
+  env.addGlobal('toToolCallingPrompt', toToolCallingPrompt);
 
+  const context = {
+    tools: rawContext.tools ?? {},
+    managedAgents: rawContext.managedAgents ?? {},
+    customInstructions: rawContext.customInstructions ?? '',
+    task: rawContext.task,
+    remainingSteps: rawContext.remainingSteps,
+    name: rawContext.name,
+    finalAnswer: rawContext.finalAnswer,
+  };
+
+  return env.renderString(template, context);
+}
 export {
   AgentError,
   AgentParsingError,
@@ -103,4 +138,6 @@ export {
   makeJsonSerializable,
   encodeImageBase64,
   makeImageUrl,
+  populateTemplate,
+  toToolCallingPrompt,
 };

@@ -1,7 +1,7 @@
 import { MultiStepAgent } from '@/agents/multi-step-agent';
 import type { Model } from '@/models';
 import { ToolOutput, type Tool, ToolCall } from '@/tools';
-import { ActionOutput, type PromptTemplates } from '@/agents/types';
+import { ActionOutput, type MultiStepAgentConfig, type PromptTemplates } from '@/agents/types';
 import {
   AgentGenerationError,
   AgentParsingError,
@@ -10,7 +10,7 @@ import {
   populateTemplate,
 } from '@/utils';
 
-export interface ToolCallingAgentParams {
+export interface ToolCallingAgentParams extends MultiStepAgentConfig {
   tools: Tool[];
   model: Model;
   promptTemplates?: PromptTemplates;
@@ -46,12 +46,15 @@ export class ToolCallingAgent extends MultiStepAgent {
     planningInterval,
     streamOutputs = false,
     maxToolThreads,
+    name,
+    description,
     ...kwargs
   }: ToolCallingAgentParams) {
     super({
       tools,
       model,
-      // TODO: Test that load prompt templates works.
+      ...(name && { name }),
+      ...(description && { description }),
       promptTemplates: promptTemplates ?? loadPromptTemplates('src/prompts/toolcalling_agent.yaml'),
       streamOutputs,
       ...(planningInterval && { planningInterval }),
@@ -70,12 +73,14 @@ export class ToolCallingAgent extends MultiStepAgent {
     if (maxToolThreads) this.maxToolThreads = maxToolThreads;
   }
 
-  initializesystem_prompt(): string {
+  initializeSystemPrompt(): string {
     const system_prompt = populateTemplate(this.promptTemplates['system_prompt'], {
-      tools: this.tools,
-      managed_agents: this.managedAgents,
-      custom_instructions: this.instructions,
+      tools: this.tools ?? {},
+      managedAgents: this.managedAgents ?? {},
+      customInstructions: this.instructions ?? '',
     });
+
+    console.log('----system_prompt', system_prompt);
     return system_prompt;
   }
 

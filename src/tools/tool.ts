@@ -160,4 +160,3 @@ export function tool(params: ToolParams, execute: (...args: any[]) => any): Tool
   createdTool.execute = execute;
   return createdTool;
 }
-
