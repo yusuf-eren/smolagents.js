@@ -13,6 +13,7 @@ import {
   parseJsonIfNeeded,
   supportsStopParameter,
 } from '@/models/helpers';
+import { toolRoleConversions } from '@/models/types';
 
 export class Model {
   flattenMessagesAsText: boolean;
@@ -68,7 +69,7 @@ export class Model {
     // Standardize message list
     const messagesAsDicts = await getCleanMessageList(
       messages,
-      customRoleConversions ?? {},
+      customRoleConversions ?? toolRoleConversions,
       convertImagesToImageUrls,
       flattenMessagesAsText
     );

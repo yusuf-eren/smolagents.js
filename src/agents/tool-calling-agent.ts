@@ -1,8 +1,7 @@
 import { MultiStepAgent } from '@/agents/multi-step-agent';
-import { OpenAIServerModel, type Model } from '@/models';
+import type { Model } from '@/models';
 import { ToolOutput, type Tool, ToolCall } from '@/tools';
-import { ActionOutput, EMPTY_PROMPT_TEMPLATES, type PromptTemplates } from './types';
-import type { BaseTool } from '@/tools/tool';
+import { ActionOutput, type PromptTemplates } from '@/agents/types';
 import {
   AgentGenerationError,
   AgentParsingError,
@@ -28,7 +27,6 @@ import type { ChatMessage, ChatMessageStreamDelta } from '@/models/chat-message'
 import { LiveBox, LogLevel, panel } from '@/monitoring';
 import { agglomerateStreamDeltas, parseJsonIfNeeded } from '@/models/helpers';
 import { AgentImage } from './agent-types';
-import OpenAI from 'openai';
 
 export function loadPromptTemplates(yamlPath: string, fallback?: any): any {
   if (fs.existsSync(yamlPath)) {
@@ -161,7 +159,7 @@ export class ToolCallingAgent extends MultiStepAgent {
       }
     }
 
-    let managed_agent;
+    let finalAnswer;
     let gotFinalAnswer = false;
 
     for await (const output of this._processToolCalls(chatMessage, memoryStep)) {
@@ -174,19 +172,19 @@ export class ToolCallingAgent extends MultiStepAgent {
               this.logger
             );
           }
-          managed_agent = output.output;
+          finalAnswer = output.output;
           gotFinalAnswer = true;
 
           // Manage state variables
-          if (typeof managed_agent === 'string' && managed_agent in Object.keys(this.state)) {
-            managed_agent = this.state[managed_agent];
+          if (typeof finalAnswer === 'string' && finalAnswer in Object.keys(this.state)) {
+            finalAnswer = this.state[finalAnswer];
           }
         }
       }
     }
 
     yield new ActionOutput({
-      output: managed_agent,
+      output: finalAnswer,
       isFinalAnswer: gotFinalAnswer,
     });
   }
@@ -211,7 +209,7 @@ export class ToolCallingAgent extends MultiStepAgent {
     }
 
     let toolCall: ToolCall;
-    let toolOutput: ToolOutput;
+    // let toolOutput: ToolOutput;
 
     for (const chatToolCall of chatMessage.toolCalls) {
       toolCall = new ToolCall(

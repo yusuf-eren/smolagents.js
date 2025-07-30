@@ -10,7 +10,7 @@ import type {
   PlanningStep,
   TaskStep,
   MemoryStep,
-  system_promptStep,
+  SystemPromptStep,
 } from '@/memory/steps';
 
 interface ActionStepConfig {
@@ -38,7 +38,7 @@ interface PlanningStepConfig {
 }
 
 type MemoryStepTypes = Array<
-  TaskStep | ActionStep | PlanningStep | FinalAnswerStep | MemoryStep | system_promptStep
+  TaskStep | ActionStep | PlanningStep | FinalAnswerStep | MemoryStep | SystemPromptStep
 >;
 
 export type { ActionStepConfig, PlanningStepConfig, MemoryStepTypes };

@@ -198,18 +198,17 @@ export async function getCleanMessageList(
       message.role === outputMessageList[outputMessageList.length - 1]?.['role']
     ) {
       if (!Array.isArray(message.content)) {
-        throw new Error('Error: wrong content:' + String(message.content));
+        throw new Error('Error: wrong content:' + JSON.stringify(message.content));
       }
 
       if (flattenMessagesAsText) {
         // Merge text content as a single string
         const textToMerge = '\n' + (message.content as Array<Record<string, any>>)[0]!['text'];
-        const length = outputMessageList?.length - 1;
-        outputMessageList[length]!['content'] += textToMerge;
+        outputMessageList[outputMessageList.length - 1]!['content'] += textToMerge;
       } else {
         for (const el of message.content) {
           const lastContent = outputMessageList[outputMessageList.length - 1]!['content'];
-          if (el.type === 'text' && lastContent[lastContent.length - 1]!['type'] === 'text') {
+          if (el.type === 'text' && lastContent[lastContent.length - 1]?.['type'] === 'text') {
             // Merge consecutive text messages rather than creating new ones
             lastContent[lastContent.length - 1]['text'] += '\n' + el['text'];
           } else {

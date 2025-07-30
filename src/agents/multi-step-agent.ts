@@ -1,4 +1,3 @@
-import { createRepo } from '@huggingface/hub';
 import { Tool, ToolCall, type ToolOutput } from '@/tools';
 import { MessageRole, Model } from '@/models';
 import {
@@ -17,7 +16,7 @@ import {
   CallbackRegistry,
   FinalAnswerStep,
   PlanningStep,
-  system_promptStep,
+  SystemPromptStep,
   TaskStep,
 } from '@/memory';
 import {
@@ -83,7 +82,7 @@ export abstract class MultiStepAgent {
   logger: AgentLogger;
   monitor: Monitor;
   memory: AgentMemory;
-  stepCallbacks?: CallbackRegistry = new CallbackRegistry();
+  stepCallbacks?: CallbackRegistry;
   streamOutputs?: boolean;
   managedAgents: Record<string, MultiStepAgent> = {};
   interruptSwitch: boolean = false;
@@ -198,8 +197,8 @@ export abstract class MultiStepAgent {
     }
   }
 
-  protected _setupTools(tools: BaseTool[], addBaseTools: boolean): void {
-    if (!tools.every(tool => tool instanceof BaseTool)) {
+  protected _setupTools(tools: Tool[], addBaseTools: boolean): void {
+    if (!tools.every(tool => tool instanceof Tool)) {
       throw new Error('All elements must be instance of BaseTool (or a subclass)');
     }
 
@@ -210,7 +209,7 @@ export abstract class MultiStepAgent {
         // TODO: JAVASCRIPT CHANGE
         if (name !== 'python_interpreter' || this.constructor.name === 'ToolCallingAgent') {
           // ToolClass is of type unknown, so we need to assert it is a constructor
-          this.tools[name] = new (ToolClass as { new (): BaseTool })();
+          this.tools[name] = new (ToolClass as { new (): Tool })();
         }
       }
     }
@@ -306,7 +305,7 @@ export abstract class MultiStepAgent {
         ${JSON.stringify(additionalArgs)}.`;
     }
 
-    this.memory.system_prompt = new system_promptStep(this.system_prompt);
+    this.memory.system_prompt = new SystemPromptStep(this.system_prompt);
     if (reset) {
       this.memory.reset();
       this.monitor.reset();
@@ -419,9 +418,9 @@ export abstract class MultiStepAgent {
     this.stepNumber = 1;
     let returnedFinalAnswer = false;
     let actionStep: ActionStep | undefined = undefined;
-    let managed_agent: any | undefined = undefined;
+    let finalAnswer: any | undefined = undefined;
 
-    while (returnedFinalAnswer && this.stepNumber <= maxSteps) {
+    while (!returnedFinalAnswer && this.stepNumber <= maxSteps) {
       if (this.interruptSwitch) {
         throw new AgentError('Agent was interrupted.', this.logger);
       }
@@ -470,12 +469,12 @@ export abstract class MultiStepAgent {
           yield output;
 
           if (output instanceof ActionOutput && output.isFinalAnswer) {
-            managed_agent = output.output;
+            finalAnswer = output.output;
             // TODO: Put colors with chalk #FFD600
-            this.logger.log(`Final answer: ${managed_agent}`, { level: LogLevel.INFO });
+            this.logger.log(`Final answer: ${finalAnswer}`, { level: LogLevel.INFO });
 
             if (this.finalAnswerChecks && this.finalAnswerChecks.length > 0) {
-              await this._validateFinalAnswer(managed_agent);
+              await this._validateFinalAnswer(finalAnswer);
             }
             returnedFinalAnswer = true;
             actionStep.isFinalAnswer = true;
@@ -499,11 +498,11 @@ export abstract class MultiStepAgent {
 
     // TODO: review this part.
     if (!returnedFinalAnswer && this.stepNumber === maxSteps + 1) {
-      managed_agent = await this._handleMaxStepsReached(task, images);
+      finalAnswer = await this._handleMaxStepsReached(task, images);
       yield actionStep!;
     }
     // TODO: Review also this `handleAgentOutputTypes` function.
-    yield new FinalAnswerStep(handleAgentOutputTypes(managed_agent));
+    yield new FinalAnswerStep(handleAgentOutputTypes(finalAnswer));
     /*
      if not returned_final_answer and self.step_number == max_steps + 1:
             final_answer = self._handle_max_steps_reached(task, images)
@@ -514,17 +513,17 @@ export abstract class MultiStepAgent {
 
   protected async _handleMaxStepsReached(task: string, images: AgentImage[]): Promise<any> {
     const actionStepStartTime = Date.now();
-    const managed_agent = await this._provideFinalAnswer(task, images);
+    const finalAnswer = await this._provideFinalAnswer(task, images);
     const finalMemoryStep = new ActionStep({
       stepNumber: this.stepNumber,
       error: new AgentMaxStepsError('Reached max steps.', this.logger),
       timing: new Timing(actionStepStartTime, Date.now()),
-      tokenUsage: managed_agent.tokenUsage,
+      tokenUsage: finalAnswer.tokenUsage,
     });
-    finalMemoryStep.actionOutput = managed_agent.content;
+    finalMemoryStep.actionOutput = finalAnswer.content;
     this._finalizeStep(finalMemoryStep);
     this.memory.steps.push(finalMemoryStep);
-    return managed_agent.content;
+    return finalAnswer.content;
   }
 
   protected async *_generatePlanningStep(
@@ -679,10 +678,10 @@ export abstract class MultiStepAgent {
     });
   }
 
-  protected async _validateFinalAnswer(managed_agent: any): Promise<void> {
+  protected async _validateFinalAnswer(finalAnswer: any): Promise<void> {
     for (const checkFunction of this.finalAnswerChecks) {
       try {
-        if (!(await checkFunction(managed_agent, this.memory))) {
+        if (!(await checkFunction(finalAnswer, this.memory))) {
           throw new Error(`Check ${checkFunction.name} returned false`);
         }
       } catch (e: any) {
@@ -907,33 +906,33 @@ export abstract class MultiStepAgent {
    * @param token - The token to use to push to the Hub.
    * @param createPR - Whether to create a pull request to the Hub.
    */
-  async pushToHub({
-    repoId,
-    commitMessage = 'Upload agent',
-    privateRepo,
-    token,
-    createPR,
-  }: {
-    repoId: string;
-    commitMessage?: string;
-    privateRepo?: boolean;
-    token?: string;
-    createPR?: boolean;
-  }): Promise<void> {
-    if (!token) {
-      throw new Error('Token is required to push to Hub');
-    }
+  // async pushToHub({
+  //   repoId,
+  //   commitMessage = 'Upload agent',
+  //   privateRepo,
+  //   token,
+  //   createPR,
+  // }: {
+  //   repoId: string;
+  //   commitMessage?: string;
+  //   privateRepo?: boolean;
+  //   token?: string;
+  //   createPR?: boolean;
+  // }): Promise<void> {
+  //   if (!token) {
+  //     throw new Error('Token is required to push to Hub');
+  //   }
 
-    const repo = await createRepo({
-      repo: repoId,
-      accessToken: token,
-      private: privateRepo ?? false,
-      sdk: 'gradio',
-    });
+  //   const repo = await createRepo({
+  //     repo: repoId,
+  //     accessToken: token,
+  //     private: privateRepo ?? false,
+  //     sdk: 'gradio',
+  //   });
 
-    repoId = repo.repoUrl.split('/').pop()!;
+  //   repoId = repo.repoUrl.split('/').pop()!;
 
-    // TODO: Continue here. Some functions are not yet implemented in @huggingface/hub lib.
-    // We may need to use node:fetch
-  }
+  //   // TODO: Continue here. Some functions are not yet implemented in @huggingface/hub lib.
+  //   // We may need to use node:fetch
+  // }
 }

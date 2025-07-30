@@ -74,6 +74,8 @@ export class OpenAIServerModel extends ApiModel {
       modelId: this.modelId ?? '',
     });
 
+    console.log('_--callling params---', JSON.stringify(completionParams, null, 4));
+
     await this.applyRateLimit();
     const response = await this.client.chat.completions.create({
       model: this.modelId ?? 'gpt-4o-mini',
@@ -115,6 +117,8 @@ export class OpenAIServerModel extends ApiModel {
     });
 
     await this.applyRateLimit();
+
+    console.log('_--callling params---', JSON.stringify(completionParams, null, 4));
 
     const stream = await this.client.chat.completions.create({
       model: this.modelId ?? 'gpt-4o-mini',
