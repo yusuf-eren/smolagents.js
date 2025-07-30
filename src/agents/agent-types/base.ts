@@ -19,16 +19,17 @@ export abstract class AgentType<T = any> {
   }
 
   toString(): string | Promise<string> {
-    this.logger.error(
-      'This is a raw AgentType of unknown type. Display in notebooks and string conversion will be unreliable'
-    );
-    return String(this._value);
+    // this.logger.error(
+    //   'This is a raw AgentType of unknown type. Display in notebooks and string conversion will be unreliable'
+    // );
+    return typeof this._value === 'string' ? this._value : JSON.stringify(this._value);
   }
 
   toRaw(): T | Promise<T> {
-    this.logger.error(
-      'This is a raw AgentType of unknown type. Display in notebooks and string conversion will be unreliable'
-    );
+    // this.logger.error(
+    //   'This is a raw AgentType of unknown type. Display in notebooks and string conversion will be unreliable'
+    // );
+    // This function does nothing actually. Maybe we can remove it.
     return this._value;
   }
 }

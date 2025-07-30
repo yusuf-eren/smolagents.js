@@ -1,7 +1,7 @@
 import { MemoryStep } from '@/memory/steps/memory';
 import { ChatMessage, MessageRole } from '@/models';
 
-export class system_promptStep extends MemoryStep {
+export class SystemPromptStep extends MemoryStep {
   system_prompt: string;
 
   constructor(system_prompt: string) {

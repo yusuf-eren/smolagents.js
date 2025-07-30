@@ -3,7 +3,7 @@ export {
   MemoryStep,
   PlanningStep,
   FinalAnswerStep,
-  system_promptStep,
+  SystemPromptStep,
   TaskStep,
 } from '@/memory/steps';
 export type { ActionStepConfig, PlanningStepConfig, MemoryStepTypes } from '@/memory/types';

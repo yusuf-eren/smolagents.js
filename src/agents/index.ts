@@ -9,3 +9,4 @@ export type {
   StreamEvent,
 } from '@/agents/types';
 export { ActionOutput } from '@/agents/types';
+export { ToolCallingAgent } from '@/agents/tool-calling-agent';

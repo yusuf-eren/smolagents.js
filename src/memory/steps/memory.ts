@@ -11,7 +11,7 @@ export abstract class MemoryStep {
     return json;
   }
 
-  toMessages(summaryMode?: boolean): ChatMessage[] {
+  toMessages(_summaryMode?: boolean): ChatMessage[] {
     throw new Error('Not implemented');
   }
 }

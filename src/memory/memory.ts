@@ -1,18 +1,13 @@
-import {
-  ActionStep,
-  PlanningStep,
-  system_promptStep,
-  TaskStep,
-  type MemoryStepTypes,
-} from '@/memory';
+import { ActionStep, PlanningStep, SystemPromptStep, TaskStep } from '@/memory/steps';
+import type { MemoryStepTypes } from '@/memory/types';
 import { LogLevel, type AgentLogger } from '@/monitoring';
 
 export class AgentMemory {
-  system_prompt: system_promptStep;
+  system_prompt: SystemPromptStep;
   steps: MemoryStepTypes;
 
   constructor(system_prompt: string) {
-    this.system_prompt = new system_promptStep(system_prompt);
+    this.system_prompt = new SystemPromptStep(system_prompt);
     this.steps = [];
   }
 
@@ -123,7 +118,7 @@ export class AgentMemory {
   }
 }
 
-type StepConstructor<T = any> = new (...args: any[]) => T;
+// type StepConstructor = new (...args: any[]) => any;
 export type CallbackFn = (step: any, kwargs?: Record<string, any>) => void;
 
 /**
@@ -131,21 +126,22 @@ export type CallbackFn = (step: any, kwargs?: Record<string, any>) => void;
  * Callbacks are registered by passing a step class and a callback function.
  */
 export class CallbackRegistry {
-  private _callbacks: Map<StepConstructor, CallbackFn[]> = new Map();
+  private _callbacks: Map<string, CallbackFn[]> = new Map();
 
-  register<T>(stepCls: StepConstructor<T>, callback: CallbackFn): void {
-    if (!this._callbacks.has(stepCls)) {
-      this._callbacks.set(stepCls, []);
+  // TODO: It works now. But check it.
+  register(stepCls: Object, callback: CallbackFn): void {
+    if (!this._callbacks.has(stepCls?.constructor?.name!)) {
+      this._callbacks.set(stepCls?.constructor?.name!, []);
     }
-    this._callbacks.get(stepCls)!.push(callback);
+    this._callbacks.get(stepCls?.constructor?.name!)!.push(callback);
   }
 
   callback(step: object, kwargs: Record<string, any> = {}): void {
-    let proto = Object.getPrototypeOf(step) as StepConstructor;
+    let proto = Object.getPrototypeOf(step);
 
     // TODO: Review this part.
     while (proto && proto.constructor !== Object) {
-      const ctor = proto.constructor as StepConstructor;
+      const ctor = proto.constructor;
       const callbacks = this._callbacks.get(ctor);
 
       if (callbacks) {

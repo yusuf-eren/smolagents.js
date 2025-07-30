@@ -75,7 +75,7 @@ export class Tool implements BaseTool {
     return result;
   }
 
-  execute(...args: any): any {
+  execute(..._args: any): any {
     throw new Error('Not implemented');
   }
 
@@ -155,7 +155,7 @@ export class Tool implements BaseTool {
   }
 }
 
-export function tool(params: ToolParams, execute: typeof Function): Tool {
+export function tool(params: ToolParams, execute: (...args: any[]) => any): Tool {
   const createdTool = new Tool(params);
   createdTool.execute = execute;
   return createdTool;

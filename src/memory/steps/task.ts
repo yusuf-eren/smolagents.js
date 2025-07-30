@@ -14,8 +14,7 @@ export class TaskStep extends MemoryStep {
   }
 
   // NOTE: The `summaryMode` parameter is not used in this implementation but i still want to keep it for future use.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  override toMessages(summaryMode: boolean = false): ChatMessage[] {
+  override toMessages(_summaryMode: boolean = false): ChatMessage[] {
     const content: Record<string, any>[] = [{ type: 'text', text: `New task:\n${this.task}` }];
     if (this.taskImages && this.taskImages.length > 0) {
       content.push(...this.taskImages.map(image => ({ type: 'image', image })));
