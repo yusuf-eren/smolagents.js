@@ -182,7 +182,7 @@ export class AgentLogger {
   // DONE
   logMessages({ messages, level = LogLevel.INFO }: LogMessagesInputParams): void {
     const messagesString = messages
-      .map(message => JSON.stringify({ ...message }, null, 4))
+      .map(message => JSON.stringify({ ...message }, null, 2))
       .join('\n');
 
     const highlightedMessages = ch.highlight(messagesString, {
@@ -275,6 +275,7 @@ export class AgentLogger {
 export class LiveBox {
   logger: AgentLogger;
   boxed: boolean;
+  private renderedLineCount = 0;
   private content = '';
   private options: BoxenOptions = {
     padding: 1,
@@ -295,15 +296,23 @@ export class LiveBox {
   }
 
   private render(language: string = 'md') {
-    readline.cursorTo(process.stdout, 0, 0);
-    readline.clearScreenDown(process.stdout);
+    const terminalWidth = process.stdout.columns ?? 80;
     let content = ch.highlight(this.content, { language, ignoreIllegals: true });
-    if (this.boxed) {
-      content = boxen(content, {
-        ...this.options,
-      });
+    content = boxen(content, {
+      ...this.options,
+      width: terminalWidth,
+      borderStyle: this.boxed ? 'round' : 'none',
+    });
+
+    const lines = content.split('\n');
+    const lineCount = lines.length;
+    // Move cursor up by previously rendered line count
+    if (this.renderedLineCount > 0) {
+      readline.moveCursor(process.stdout, 0, -this.renderedLineCount);
+      readline.clearScreenDown(process.stdout);
     }
 
     this.logger.log(content, { level: LogLevel.INFO });
+    this.renderedLineCount = lineCount;
   }
 }

@@ -114,10 +114,10 @@ export class ToolCallingAgent extends MultiStepAgent {
 
         const chatMessageStreamDeltas: ChatMessageStreamDelta[] = [];
         const live = new LiveBox('', false, this.logger);
-        for await (const delta of outputStream) {
-          chatMessageStreamDeltas.push(delta);
-          live.update(delta.content ?? '', 'md');
-          yield delta;
+        for await (const event of outputStream) {
+          chatMessageStreamDeltas.push(event);
+          live.update(agglomerateStreamDeltas(chatMessageStreamDeltas).renderAsMarkdown(), 'md');
+          yield event;
         }
         chatMessage = agglomerateStreamDeltas(chatMessageStreamDeltas);
       } else {

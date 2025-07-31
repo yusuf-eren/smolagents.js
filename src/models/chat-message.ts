@@ -51,11 +51,11 @@ export class ChatMessage {
   }
 
   renderAsMarkdown(): string {
-    let rendered = String(this.content) || '';
+    let rendered = String(this.content ?? '');
     if (this.toolCalls) {
       rendered += this.toolCalls
         .map(tool =>
-          JSON.stringify({ tool: tool.function.name, arguments: tool.function.arguments })
+          JSON.stringify({ tool: tool.function.name, arguments: tool.function.arguments }, null, 2)
         )
         .join('\n');
     }

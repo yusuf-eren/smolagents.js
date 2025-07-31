@@ -63,7 +63,7 @@ class AgentToolExecutionError extends AgentExecutionError {}
 class AgentGenerationError extends AgentError {}
 
 function makeJsonSerializable(obj: unknown): unknown {
-  return JSON.parse(JSON.stringify(obj));
+  return JSON.parse(JSON.stringify(obj, null, 2));
 }
 
 async function encodeImageBase64(imageBuffer: Buffer): Promise<string> {

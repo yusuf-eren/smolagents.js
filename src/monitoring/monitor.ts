@@ -29,8 +29,8 @@ export class Monitor {
     this.totalOutputTokenCount = 0;
   }
 
-  updateMetrics(stepLog: { timing: Timing; tokenUsage?: TokenUsage | null }): void {
-    const stepDuration = stepLog.timing.duration;
+  updateMetrics(step: { timing: Timing; tokenUsage?: TokenUsage | null }): void {
+    const stepDuration = step.timing.duration;
     if (stepDuration) {
       this.stepDurations.push(stepDuration);
     }
@@ -39,9 +39,9 @@ export class Monitor {
     const durationInSeconds = stepDuration ? stepDuration / 1000 : 0;
     let consoleOutputs = `[Step ${this.stepDurations.length}: Duration ${durationInSeconds.toFixed(2)} seconds`;
 
-    if (stepLog.tokenUsage) {
-      this.totalInputTokenCount += stepLog.tokenUsage.inputTokens;
-      this.totalOutputTokenCount += stepLog.tokenUsage.outputTokens;
+    if (step.tokenUsage) {
+      this.totalInputTokenCount += step.tokenUsage.inputTokens;
+      this.totalOutputTokenCount += step.tokenUsage.outputTokens;
       consoleOutputs += ` | Input tokens: ${this.totalInputTokenCount.toLocaleString()} | Output tokens: ${this.totalOutputTokenCount.toLocaleString()}`;
     }
     consoleOutputs += ']';
