@@ -128,6 +128,7 @@ export class OpenAIServerModel extends ApiModel {
       tools: completionParams['toolsToCallFrom'] ?? null,
       ...completionParams,
       stream: true,
+      stream_options: { include_usage: true },
     });
 
     for await (const event of stream) {
