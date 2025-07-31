@@ -75,6 +75,7 @@ export function panel(
     borderColor,
     borderStyle: 'round',
     width: globalThis?.process?.stdout?.columns,
+    padding: 1,
   });
 }
 

@@ -118,8 +118,8 @@ export class AgentMemory {
   }
 }
 
-// type StepConstructor = new (...args: any[]) => any;
-export type CallbackFn = CallableFunction;
+export type StepConstructor = new (...args: any[]) => any;
+export type CallbackFn = (step: any, ...args: any[]) => void;
 
 /**
  * Registry for callbacks that are called at each step of the agent's execution.
@@ -128,30 +128,46 @@ export type CallbackFn = CallableFunction;
 export class CallbackRegistry {
   private _callbacks: Map<string, CallbackFn[]> = new Map();
 
-  // TODO: It works now. But check it.
-  register(stepCls: Object, callback: CallbackFn): void {
-    if (!this._callbacks.has(stepCls?.constructor?.name!)) {
-      this._callbacks.set(stepCls?.constructor?.name!, []);
+  /**
+   * Register a callback for a step class.
+   * 
+   * @param stepCls Step class to register the callback for
+   * @param callback Callback function to register
+   */
+  register(stepCls: StepConstructor, callback: CallbackFn): void {
+    const className = stepCls.name;
+    
+    if (!this._callbacks.has(className)) {
+      this._callbacks.set(className, []);
     }
-    this._callbacks.get(stepCls?.constructor?.name!)!.push(callback);
+    this._callbacks.get(className)!.push(callback);
   }
 
   callback(step: object, kwargs: Record<string, any> = {}): void {
-    let proto = Object.getPrototypeOf(step);
+    // Get the inheritance chain (equivalent to Python's __mro__)
+    const mro: any[] = [];
+    let current = step.constructor;
+    
+    // Build the method resolution order (inheritance chain)
+    while (current && current !== Object) {
+      mro.push(current);
+      current = Object.getPrototypeOf(current);
+    }
 
-    // TODO: Review this part.
-    while (proto && proto.constructor !== Object) {
-      const ctor = proto.constructor;
-      const callbacks = this._callbacks.get(ctor);
-
+    // For each class in the inheritance chain, call registered callbacks
+    for (const cls of mro) {
+      const callbacks = this._callbacks.get(cls.name);
+      
       if (callbacks) {
         for (const cb of callbacks) {
-          if (cb.length === 1) cb(step);
-          else cb(step, kwargs);
+          // For backwards compatibility: single parameter vs multiple parameters
+          if (cb.length === 1) {
+            cb(step);
+          } else {
+            cb(step, kwargs);
+          }
         }
       }
-
-      proto = Object.getPrototypeOf(proto);
     }
   }
 }

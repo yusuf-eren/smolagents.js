@@ -35,7 +35,9 @@ export class Monitor {
       this.stepDurations.push(stepDuration);
     }
 
-    let consoleOutputs = `[Step ${this.stepDurations.length}: Duration ${stepDuration?.toFixed(2)} seconds`;
+    // Convert milliseconds to seconds
+    const durationInSeconds = stepDuration ? stepDuration / 1000 : 0;
+    let consoleOutputs = `[Step ${this.stepDurations.length}: Duration ${durationInSeconds.toFixed(2)} seconds`;
 
     if (stepLog.tokenUsage) {
       this.totalInputTokenCount += stepLog.tokenUsage.inputTokens;

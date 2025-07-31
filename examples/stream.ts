@@ -26,4 +26,4 @@ const agent = new ToolCallingAgent({
   streamOutputs: true,
 });
 
-await agent.run('Hello, how is the weather in New York?');
+await agent.run('What is the weather in New York?');

@@ -267,7 +267,7 @@ export abstract class MultiStepAgent {
     }
 
     // Backward compatibility: always register update_metrics for ActionStep
-    this.stepCallbacks.register(ActionStep, this.monitor.updateMetrics);
+    this.stepCallbacks.register(ActionStep, this.monitor.updateMetrics.bind(this.monitor));
   }
 
   set systemPrompt(_: string) {
@@ -310,7 +310,7 @@ export abstract class MultiStepAgent {
 
     this.logger.logTask({
       content: this.task.trim(),
-      subtitle: `${this.model?.constructor?.name} - ${this.model?.modelId ?? ''}`,
+      subtitle: `(${this.model?.constructor?.name} - ${this.model?.modelId ?? ''})`,
       level: LogLevel.INFO,
       title: this.name ?? '',
     });

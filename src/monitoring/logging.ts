@@ -169,9 +169,10 @@ export class AgentLogger {
 
   // DONE
   logTask({ content, title, subtitle, level = LogLevel.INFO }: LogTaskInputParams): void {
+    const taskTitle = title.length > 0 ? ` - ${title}` : '';
     this.log(
       panel(
-        { content, title, subtitle },
+        { content, title: chalk.bold('New run' + taskTitle), subtitle },
         { borderColor: YELLOW_HEX, contentStyle: 'bold', titleStyle: 'bold', subtitleStyle: 'bold' }
       ),
       { level }

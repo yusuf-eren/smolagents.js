@@ -268,7 +268,7 @@ export class ToolCallingAgent extends MultiStepAgent {
           title: '',
           content: `Calling tool: '${toolName}' with arguments: ${JSON.stringify(toolArguments)}`,
         },
-        {}
+        { borderColor: 'white' }
       ),
       { level: LogLevel.INFO }
     );

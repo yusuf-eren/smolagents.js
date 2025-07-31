@@ -1,4 +1,4 @@
-import type { ActionStep, FinalAnswerStep, PlanningStep } from '@/memory';
+import type { ActionStep, FinalAnswerStep, PlanningStep, CallbackFn } from '@/memory';
 import { type ChatMessageStreamDelta, type ChatMessageToolCall, Model } from '@/models';
 import { AgentLogger, LogLevel, Timing, TokenUsage } from '@/monitoring';
 import type { ToolCall, ToolOutput } from '@/tools';
@@ -162,8 +162,8 @@ export interface MultiStepAgentConfig {
   grammar?: Record<string, string>;
   managedAgents?: any[];
   stepCallbacks?:
-    | Array<CallableFunction>
-    | Record<string, CallableFunction | Array<CallableFunction>>;
+    | Array<CallbackFn>
+    | Record<string, CallbackFn | Array<CallbackFn>>;
   planningInterval?: number;
   name?: string;
   description?: string;
