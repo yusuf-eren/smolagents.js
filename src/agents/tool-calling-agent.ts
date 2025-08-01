@@ -7,6 +7,7 @@ import {
   AgentParsingError,
   AgentToolCallError,
   AgentToolExecutionError,
+  loadPromptTemplates,
   populateTemplate,
 } from '@/utils';
 
@@ -20,21 +21,11 @@ export interface ToolCallingAgentParams extends MultiStepAgentConfig {
   [key: string]: any; // To accept additional kwargs
 }
 
-import fs from 'fs';
-import yaml from 'js-yaml';
 import type { ActionStep } from '@/memory/steps';
 import type { ChatMessage, ChatMessageStreamDelta } from '@/models/chat-message';
 import { LiveBox, LogLevel, panel } from '@/monitoring';
 import { agglomerateStreamDeltas, parseJsonIfNeeded } from '@/models/helpers';
 import { AgentImage } from './agent-types';
-
-export function loadPromptTemplates(yamlPath: string, fallback?: any): any {
-  if (fs.existsSync(yamlPath)) {
-    const fileContents = fs.readFileSync(yamlPath, 'utf8');
-    return yaml.load(fileContents);
-  }
-  return fallback;
-}
 
 export class ToolCallingAgent extends MultiStepAgent {
   maxToolThreads: number = 1;

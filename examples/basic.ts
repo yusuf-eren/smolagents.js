@@ -25,4 +25,4 @@ const agent = new ToolCallingAgent({
   }),
 });
 
-await agent.run('What is the weather in New York?');
+await agent.run('What is the weather in San Francisco?');

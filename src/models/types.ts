@@ -25,8 +25,7 @@ export const CODEAGENT_RESPONSE_FORMAT = {
           type: 'string',
         },
         code: {
-          // TODO: JAVASCRIPT CHANGE
-          description: 'Valid Python code snippet implementing the thought.',
+          description: 'Valid JavaScript code snippet implementing the thought.',
           title: 'Code',
           type: 'string',
         },

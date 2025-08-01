@@ -1,5 +1,7 @@
 import type { Buffer } from 'node:buffer';
 
+import fs from 'fs';
+import yaml from 'js-yaml';
 import nunjucks from 'nunjucks';
 import sharp from 'sharp';
 import { AgentLogger, LogLevel } from '@/monitoring';
@@ -126,6 +128,30 @@ function populateTemplate(
 
   return env.renderString(template, context);
 }
+
+const BASE_BUILTIN_MODULES: string[] = [
+  'fs', // for file system
+  'path', // for file path manipulations
+  'os', // for system info
+  'crypto', // for cryptography
+  'stream', // for stream handling
+  'events', // for event emitters
+  'util', // for utilities like promisify, inspect
+  'timers', // for setTimeout etc.
+  'url', // for URL parsing
+  'assert', // for assertions
+  'querystring', // legacy query parsing
+  'zlib', // for compression
+];
+
+function loadPromptTemplates(yamlPath: string, fallback?: any): any {
+  if (fs.existsSync(yamlPath)) {
+    const fileContents = fs.readFileSync(yamlPath, 'utf8');
+    return yaml.load(fileContents);
+  }
+  return fallback;
+}
+
 export {
   AgentError,
   AgentParsingError,
@@ -140,4 +166,6 @@ export {
   makeImageUrl,
   populateTemplate,
   toToolCallingPrompt,
+  loadPromptTemplates,
+  BASE_BUILTIN_MODULES,
 };

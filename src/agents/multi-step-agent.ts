@@ -1,3 +1,4 @@
+import vm2 from 'vm2';
 import { Tool, ToolCall, type ToolOutput } from '@/tools';
 import { MessageRole, Model } from '@/models';
 import {
@@ -88,7 +89,7 @@ export abstract class MultiStepAgent {
   managedAgents: Record<string, MultiStepAgent> = {};
   interruptSwitch: boolean = false;
 
-  jsExecutor?: any; // TODO: Implement a vm (probably vm2)
+  jsExecutor?: vm2.VM; // TODO: Implement a vm (probably vm2)
 
   constructor(config: MultiStepAgentConfig) {
     this.agentName = this.constructor.name;
