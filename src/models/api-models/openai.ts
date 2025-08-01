@@ -8,7 +8,28 @@ import {
   type OpenAIGenerateStreamParams,
   toolRoleConversions,
 } from '@/models/types';
-import { createRequire } from 'module';
+
+// Dynamic import helper for dual package support
+async function loadOpenAI() {
+  try {
+    // Try ESM dynamic import first using eval to avoid TS compile-time resolution
+    const dynamicImport = eval('(specifier) => import(specifier)');
+    const openaiModule = await dynamicImport('openai');
+    return openaiModule.default || openaiModule;
+  } catch (e1) {
+    try {
+      // Fallback to require (CommonJS). check if require is available
+      if (typeof require !== 'undefined') {
+        return require('openai');
+      }
+      // Last resort: use eval to avoid TypeScript compile-time issues
+      const requireFunc = eval('require');
+      return requireFunc('openai');
+    } catch (e2) {
+      throw new Error("Optional dependency 'openai' not installed.");
+    }
+  }
+}
 
 export interface OpenAIServerModelConfig extends ApiModelConfig {
   apiBase?: string;
@@ -22,7 +43,7 @@ type OpenAIClientType = import('openai').OpenAI;
 
 export class OpenAIServerModel extends ApiModel {
   clientOptions: Record<string, any>;
-  override client: OpenAIClientType;
+  override client: OpenAIClientType | null = null;
 
   constructor({
     modelId,
@@ -51,22 +72,25 @@ export class OpenAIServerModel extends ApiModel {
     });
 
     this.clientOptions = mergedClientOptions;
-    this.client = this.createClient();
   }
 
-  protected createClient(clientOptions?: Record<string, any>): OpenAIClientType {
-    let client: any;
+  protected async createClient(clientOptions?: Record<string, any>): Promise<OpenAIClientType> {
     try {
-      const require = createRequire(import.meta.url);
-      const { OpenAI } = require('openai');
-      client = OpenAI;
+      const openaiModule = await loadOpenAI();
+      const { OpenAI } = openaiModule;
+      const options = clientOptions ?? this.clientOptions;
+      return new OpenAI(options) as OpenAIClientType;
     } catch (e) {
       console.error(e);
       throw new Error("Optional dependency 'openai' not installed.");
     }
+  }
 
-    const options = clientOptions ?? this.clientOptions;
-    return new client(options);
+  private async ensureClient(): Promise<OpenAIClientType> {
+    if (!this.client) {
+      this.client = await this.createClient();
+    }
+    return this.client;
   }
 
   override async generate(params: OpenAIGenerateParams): Promise<ChatMessage> {
@@ -79,7 +103,8 @@ export class OpenAIServerModel extends ApiModel {
     });
 
     await this.applyRateLimit();
-    const response = await this.client.chat.completions.create({
+    const client = await this.ensureClient();
+    const response = await client.chat.completions.create({
       model: this.modelId ?? 'gpt-4o-mini',
       messages: completionParams['messages'] ?? [],
       stop: completionParams['stopSequences'] ?? null,
@@ -120,7 +145,8 @@ export class OpenAIServerModel extends ApiModel {
 
     await this.applyRateLimit();
 
-    const stream = await this.client.chat.completions.create({
+    const client = await this.ensureClient();
+    const stream = await client.chat.completions.create({
       model: this.modelId ?? 'gpt-4o-mini',
       messages: completionParams['messages'] ?? [],
       stop: completionParams['stopSequences'] ?? null,
@@ -137,7 +163,10 @@ export class OpenAIServerModel extends ApiModel {
         this._lastOutputTokenCount = event.usage.completion_tokens;
         yield new ChatMessageStreamDelta({
           content: '',
-          tokenUsage: new TokenUsage(this._lastInputTokenCount, this._lastOutputTokenCount),
+          tokenUsage: new TokenUsage(
+            this._lastInputTokenCount ?? 0,
+            this._lastOutputTokenCount ?? 0
+          ),
         });
       }
 
