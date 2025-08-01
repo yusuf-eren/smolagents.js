@@ -1,3 +1,7 @@
+> **Unofficial Port Notice**  
+> This is an **unofficial**, community-built TypeScript/Node.js port of the original smolagents Python library.  
+> Built and maintained independently by @yusuf-eren (https://github.com/yusuf-eren).
+
 <p align="center">
     <a href="https://www.npmjs.com/package/smolagents.js"><img alt="NPM Version" src="https://img.shields.io/npm/v/smolagents.js?color=blue"></a>
     <a href="https://github.com/yusuf-eren/smolagents.js"><img alt="GitHub Stars" src="https://img.shields.io/github/stars/yusuf-eren/smolagents.js?style=social"></a>
