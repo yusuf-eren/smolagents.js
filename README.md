@@ -27,7 +27,9 @@
 
 See smolagents.js in action:
 
-![smolagents.js Demo](docs/demo.gif)
+<div align="center">
+  <img src="docs/demo.gif" alt="smolagents.js Demo" width="385" height="500" />
+</div>
 
 ## Quick Start
 
