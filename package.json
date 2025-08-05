@@ -21,7 +21,7 @@
     "build:types": "tsc --project tsconfig.types.json && tsc-alias -p tsconfig.types.json",
     "build:watch": "tsc --project tsconfig.esm.json --watch",
     "dev": "tsx src/index.ts",
-    "clean": "rm -rf dist",
+    "clean": "rimraf dist",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",
@@ -31,6 +31,8 @@
     "test:coverage": "jest --coverage",
     "test:ci": "jest --ci --coverage --passWithNoTests",
     "typecheck": "tsc --noEmit",
+    "example:basic": "tsx examples/basic.ts",
+    "example:stream": "tsx examples/stream.ts",
     "prepublishOnly": "pnpm run clean && pnpm run build"
   },
   "keywords": [
@@ -68,6 +70,7 @@
     "cli-table3": "0.6.5",
     "js-yaml": "4.1.0",
     "nunjucks": "3.2.4",
+    "rimraf": "6.0.1",
     "sharp": "0.34.3",
     "vm2": "3.9.19",
     "winston": "3.17.0"
