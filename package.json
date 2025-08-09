@@ -33,6 +33,7 @@
     "typecheck": "tsc --noEmit",
     "example:basic": "tsx examples/basic.ts",
     "example:stream": "tsx examples/stream.ts",
+    "example:ollama": "tsx examples/ollama.ts",
     "prepublishOnly": "pnpm run clean && pnpm run build"
   },
   "keywords": [
