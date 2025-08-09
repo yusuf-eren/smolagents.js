@@ -47,6 +47,13 @@ export class AgentMemory {
    *                   Careful: will increase log length exponentially. Use only for debugging.
    */
   replay(logger: AgentLogger, detailed: boolean = false): void {
+
+    // Store the current logger level as user may have closed it
+    var loggerLevel = logger.level;
+
+    //Change logger level to INFO just for replay
+    logger.level = LogLevel.INFO;
+
     logger.console.log(LogLevel.INFO, "Replaying the agent's steps:");
     logger.logMarkdown({
       title: 'System prompt',
@@ -105,6 +112,8 @@ export class AgentMemory {
         });
       }
     }
+    // Restore the original logger level
+    logger.level = loggerLevel;
   }
 
   /**
@@ -130,13 +139,13 @@ export class CallbackRegistry {
 
   /**
    * Register a callback for a step class.
-   * 
+   *
    * @param stepCls Step class to register the callback for
    * @param callback Callback function to register
    */
   register(stepCls: StepConstructor, callback: CallbackFn): void {
     const className = stepCls.name;
-    
+
     if (!this._callbacks.has(className)) {
       this._callbacks.set(className, []);
     }
@@ -147,7 +156,7 @@ export class CallbackRegistry {
     // Get the inheritance chain (equivalent to Python's __mro__)
     const mro: any[] = [];
     let current = step.constructor;
-    
+
     // Build the method resolution order (inheritance chain)
     while (current && current !== Object) {
       mro.push(current);
@@ -157,7 +166,7 @@ export class CallbackRegistry {
     // For each class in the inheritance chain, call registered callbacks
     for (const cls of mro) {
       const callbacks = this._callbacks.get(cls.name);
-      
+
       if (callbacks) {
         for (const cb of callbacks) {
           // For backwards compatibility: single parameter vs multiple parameters

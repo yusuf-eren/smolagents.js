@@ -78,6 +78,14 @@ export class AgentLogger {
     }
   }
 
+  shouldLog(level: LogLevel): boolean {
+    if (level === LogLevel.OFF || this.level === LogLevel.OFF) {
+      return false;
+    }
+
+    return true;
+  }
+
   /**
    * Logs a message to the console.
    *
@@ -86,6 +94,10 @@ export class AgentLogger {
    * @param kwargs - The keyword arguments to log.
    */
   log(args: string, { level = LogLevel.INFO, ...kwargs }: LogInputParams = {}): void {
+    if (!this.shouldLog(level)) {
+      return;
+    }
+
     this.console.log({
       level: level,
       message: args,
