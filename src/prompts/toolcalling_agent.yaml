@@ -236,7 +236,9 @@ managed_agent:
     {{final_answer}}
 final_answer:
   pre_messages: |-
-    An agent tried to answer a user query but it got stuck and failed to do so. You are tasked with providing an answer instead. Here is the agent's memory:
+    CRITICAL ERROR: An agent has failed to complete a task and got stuck in an infinite loop despite having all necessary information. This is a severe execution failure that needs human intervention. Below is the complete agent memory which clearly shows all interactions and information:
   post_messages: |-
-    Based on the above, please provide an answer to the following user task:
+    ATTENTION: The agent clearly had all required information to solve this problem but failed to reach a conclusion. This is an AI execution failure.
+    
+    As the backup system, you MUST now provide a direct answer to the following task using ONLY the information already present in the above memory. Do not apologize for the failure - just solve the problem:
     {{task}}

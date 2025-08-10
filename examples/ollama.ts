@@ -2,7 +2,7 @@ import { OllamaModel,  ToolCallingAgent, tool } from 'smolagents.js';
 
 const getTimeTool = tool(
   {
-    name: 'get_Time',
+    name: 'get_time',
     description: 'Get the current time in a given city',
     inputs: {
       city: {
@@ -17,14 +17,29 @@ const getTimeTool = tool(
   }
 );
 
+const getWeatherTool = tool(
+  {
+    name: 'get_weather',
+    description: 'Get the weather for a given city',
+    inputs: {
+      city: {
+        type: 'string',
+        description: 'The city to get the weather for',
+      },
+    },
+    outputType: 'string',
+  },
+  async ({ city }: { city: string }): Promise<string> => {
+    return `The weather in ${city} is sunny`;
+  }
+);
+
 const agent = new ToolCallingAgent({
-  tools: [getTimeTool],
+  tools: [getTimeTool, getWeatherTool],
   model: new OllamaModel({
     modelId: 'mistral' 
   }),
-
+  maxSteps : 5,
 });
 
-await agent.run('What is the time in San Francisco?');
-
-
+await agent.run('What is the weather and time in İstanbul?');

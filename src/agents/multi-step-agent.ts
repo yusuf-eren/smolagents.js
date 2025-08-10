@@ -498,6 +498,9 @@ export abstract class MultiStepAgent {
     // TODO: review this part.
     if (!returnedFinalAnswer && this.stepNumber === maxSteps + 1) {
       finalAnswer = await this._handleMaxStepsReached(task, images);
+      this.logger.log(chalk.hex('#FFD600')(`Final answer: ${finalAnswer}`), {
+              level: LogLevel.INFO,
+            });
       yield actionStep!;
     }
     // TODO: Review also this `handleAgentOutputTypes` function.
@@ -794,6 +797,7 @@ export abstract class MultiStepAgent {
    */
   protected async _provideFinalAnswer(task: string, images: AgentImage[]): Promise<ChatMessage> {
     // Start with the SYSTEM message and pre-message content
+
     const messages: ChatMessage[] = [
       new ChatMessage({
         role: MessageRole.SYSTEM,

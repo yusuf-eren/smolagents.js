@@ -78,7 +78,7 @@ export class OllamaModel extends Model {
   constructor({
     baseUrl = 'http://localhost:11434',
     modelName = 'mistral',
-    temperature = 0.2, // Default temperature is set to a low number to reduce errors via random texts
+    temperature = 0.1, // Default temperature is set to a low number to reduce errors via random texts
     top_p,
     num_predict,
     top_k,
