@@ -37,7 +37,7 @@ const getWeatherTool = tool(
 const agent = new ToolCallingAgent({
   tools: [getTimeTool, getWeatherTool],
   model: new OllamaModel({
-    modelId: 'mistral' 
+    modelName: 'mistral' 
   }),
   maxSteps : 5,
 });
