@@ -16,9 +16,10 @@
     "dist/types"
   ],
   "scripts": {
-    "build": "pnpm run clean && pnpm run build:esm && pnpm run build:types",
+    "build": "pnpm run clean && pnpm run build:esm && pnpm run build:types && pnpm run copy:prompts",
     "build:esm": "tsc --project tsconfig.esm.json && tsc-alias -p tsconfig.esm.json -f -fe .js",
     "build:types": "tsc --project tsconfig.types.json && tsc-alias -p tsconfig.types.json",
+    "copy:prompts": "mkdir -p dist/esm/prompts && cp src/prompts/*.yaml dist/esm/prompts/",
     "build:watch": "tsc --project tsconfig.esm.json --watch",
     "dev": "tsx src/index.ts",
     "clean": "rimraf dist",
