@@ -14,3 +14,4 @@ export type {
 
 export { Model } from '@/models/base';
 export { OpenAIServerModel } from '@/models/api-models/openai';
+export { OllamaModel } from '@/models/local-models/ollama';
