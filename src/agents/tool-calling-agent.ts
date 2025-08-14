@@ -369,6 +369,24 @@ function getJsonSchemaType(jsType: string): { type: string } {
 }
 
 export function validateToolArguments(tool: Tool, args: any): string | null {
+  // Special case for final_answer tool: allow both object and direct string format
+  if (tool.name === 'final_answer') {
+    if (typeof args === 'string') {
+      return null; // Direct string is valid for final_answer
+    }
+    if (typeof args === 'object' && args !== null && !Array.isArray(args)) {
+      // If it's an object, validate normally but more leniently
+      for (const key of Object.keys(args)) {
+        if (!(key in tool.inputs)) {
+          return `Argument ${key} is not in the tool's input schema.`;
+        }
+      }
+      return null;
+    }
+    // For final_answer, accept any reasonable input
+    return null;
+  }
+
   if (typeof args === 'object' && args !== null && !Array.isArray(args)) {
     for (const [key, value] of Object.entries(args)) {
       if (!(key in tool.inputs)) {
