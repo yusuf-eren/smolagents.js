@@ -220,19 +220,61 @@ export class ToolCallingAgent extends MultiStepAgent {
     const outputs: Record<string, ToolOutput> = {};
     const callList = Object.values(parallelCalls);
 
+    // Process calls. After each tool output we check whether the tool wants to be
+    // requeued. A tool can request requeueing by returning an object like:
+    //   { __requeue: true }            // requeue once with same args
+    //   { __requeue: N }               // requeue N times with same args
+    //   { __requeue: N, arguments: {} } // requeue N times with provided args
+    // When detected we yield a new ToolCall for the requeued invocation and
+    // immediately execute and yield its ToolOutput(s). This is not recursion of
+    // the model, it's forcing the agent to call the same tool again.
     if (callList.length === 1) {
       const toolCall = callList[0]!;
-      const toolOutput = await this.#processSingleToolCall(toolCall);
+      let toolOutput = await this.#processSingleToolCall(toolCall);
       outputs[toolCall.id] = toolOutput;
       yield toolOutput;
+
+      // Handle requeues signaled by tool output
+      if (typeof toolOutput.output === 'object' && toolOutput.output !== null && '__requeue' in toolOutput.output) {
+        const rq = (toolOutput.output as any)['__requeue'];
+        const count = typeof rq === 'number' ? rq : rq === true ? 1 : 0;
+        const newArgs = (toolOutput.output as any)['arguments'] ?? toolCall.arguments ?? {};
+        for (let i = 0; i < count; i++) {
+          const newId = `${toolCall.id}-requeue-${i + 1}-${Date.now()}`;
+          const newCall = new ToolCall(toolCall.name, newArgs, newId);
+          // yield the tool call so any listeners can see it
+          yield newCall;
+          const newOutput = await this.#processSingleToolCall(newCall);
+          outputs[newCall.id] = newOutput;
+          yield newOutput;
+          // allow chaining: if the requeued call itself requests further requeues,
+          // the outer loop will pick it up in the next iteration (but keep this
+          // implementation bounded by the requested count above).
+        }
+      }
     } else {
       const promises = callList.map(call =>
-        this.#processSingleToolCall(call).then(result => ({ id: call.id, result }))
+        this.#processSingleToolCall(call).then(result => ({ id: call.id, result, call }))
       );
       const resolved = await Promise.all(promises);
-      for (const { id, result } of resolved) {
+      for (const { id, result, call } of resolved) {
         outputs[id] = result;
         yield result;
+
+        // Handle requeues for each parallel result
+        if (typeof result.output === 'object' && result.output !== null && '__requeue' in result.output) {
+          const rq = (result.output as any)['__requeue'];
+          const count = typeof rq === 'number' ? rq : rq === true ? 1 : 0;
+          const newArgs = (result.output as any)['arguments'] ?? call.arguments ?? {};
+          for (let i = 0; i < count; i++) {
+            const newId = `${call.id}-requeue-${i + 1}-${Date.now()}`;
+            const newCall = new ToolCall(call.name, newArgs, newId);
+            yield newCall;
+            const newOutput = await this.#processSingleToolCall(newCall);
+            outputs[newCall.id] = newOutput;
+            yield newOutput;
+          }
+        }
       }
     }
 

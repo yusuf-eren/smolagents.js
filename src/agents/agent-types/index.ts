@@ -42,7 +42,7 @@ function handleAgentOutputTypes(output: unknown, outputType?: string | null): Ag
   // idk what is gonna return here. but let'st throw error for now. I will check that later.
   // return output;
 
-  throw new Error('Unknown output type [TODO:]It will be fixed.');
+  return new AgentText(output as any);
 }
 
 export {

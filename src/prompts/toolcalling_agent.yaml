@@ -106,8 +106,8 @@ system_prompt: |-
   {%- endfor %}
   {%- endif %}
 
-  {%- if custom_instructions %}
-  {{custom_instructions}}
+  {%- if customInstructions %}
+  {{customInstructions}}
   {%- endif %}
 
   Here are the rules you should always follow to solve your task:

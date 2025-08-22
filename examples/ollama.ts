@@ -1,4 +1,4 @@
-import { OllamaModel,  ToolCallingAgent, tool } from 'smolagents.js';
+import { LogLevel, OllamaModel,  ToolCallingAgent, tool } from 'smolagents.js';
 
 const getTimeTool = tool(
   {
@@ -29,17 +29,22 @@ const getWeatherTool = tool(
     },
     outputType: 'string',
   },
-  async ({ city }: { city: string }): Promise<string> => {
-    return `The weather in ${city} is sunny`;
+  async ({ city }: { city: string })=> {
+    return {
+      observation: `The weather in ${city} is sunny`,
+      _requeue: 1,
+      arguments: { city: "New York"}
+    };
   }
 );
 
 const agent = new ToolCallingAgent({
   tools: [getTimeTool, getWeatherTool],
   model: new OllamaModel({
-    modelName: 'mistral' 
+    modelName: 'gemma3' 
   }),
   maxSteps : 5,
+  instructions: 'You are a helpful assistant.',
 });
 
 await agent.run('What is the weather and time in İstanbul?');
