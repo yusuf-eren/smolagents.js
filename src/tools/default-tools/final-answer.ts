@@ -9,6 +9,7 @@ export class FinalAnswerTool extends Tool {
         answer: {
           type: 'any',
           description: 'The final answer to the problem',
+          nullable: true,
         },
       },
       outputType: 'any',
@@ -16,6 +17,14 @@ export class FinalAnswerTool extends Tool {
   }
 
   override execute(input: any): any {
-    return input['answer'];
+    // Handle both {"answer": "..."} and direct string formats
+    if (typeof input === 'string') {
+      return input;
+    }
+    if (input && typeof input === 'object' && 'answer' in input) {
+      return input['answer'];
+    }
+    // Fallback: return the input as-is
+    return input;
   }
 }
