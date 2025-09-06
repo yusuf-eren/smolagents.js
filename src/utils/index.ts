@@ -115,6 +115,13 @@ function populateTemplate(
   });
 
   env.addGlobal('toToolCallingPrompt', toToolCallingPrompt);
+  var toolPrompt = '';
+  for (var tool in rawContext.tools) {
+    const currentTool = rawContext.tools[tool];
+    if (currentTool) {
+      toolPrompt += toToolCallingPrompt(currentTool);
+    }
+  }
 
   const context = {
     tools: rawContext.tools ?? {},
@@ -124,6 +131,7 @@ function populateTemplate(
     remainingSteps: rawContext.remainingSteps,
     name: rawContext.name,
     finalAnswer: rawContext.finalAnswer,
+    toolPrompt: toolPrompt,
   };
 
   return env.renderString(template, context);
