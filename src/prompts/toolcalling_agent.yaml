@@ -90,21 +90,11 @@ system_prompt: |-
   }
 
   Above example were using notional tools that might not exist for you. You only have access to these tools:
-  {%- for tool in tools %}
-  - {{ toToolCallingPrompt(tool) }}
-  {%- endfor %}
-
-  {%- if managedAgents | list %}
-  You can also give tasks to team members.
-  Calling a team member works similarly to calling a tool: provide the task description as the 'task' argument. Since this team member is a real human, be as detailed and verbose as necessary in your task description.
-  You can also include any relevant variables or context using the 'additional_args' argument.
-  Here is a list of the team members that you can call:
-  {%- for agent in managedAgents %}
-  - {{ agent.name }}: {{ agent.description }}
-    - Takes inputs: {{agent.inputs}}
-    - Returns an output of type: {{agent.output_type}}
-  {%- endfor %}
+  {%- if toolPrompt %}
+  {{toolPrompt}}
   {%- endif %}
+
+
 
   {%- if customInstructions %}
   {{customInstructions}}
@@ -122,42 +112,31 @@ planning:
     You are a world expert at analyzing a situation to derive facts, and plan accordingly towards solving a task.
     Below I will present you a task. You will need to 1. build a survey of facts known or needed to solve the task, then 2. make a plan of action to solve the task.
 
+    IMPORTANT CONSTRAINT: You MUST ONLY use the tools explicitly listed in the "You can leverage these tools:" block that will be printed below (the {{toolPrompt}} section). Do NOT assume any other tools exist (for example: web_search, external APIs, or other notional tools). Any plan step that requires a tool not present in that list is invalid and must not be included. If a needed fact cannot be obtained with the available tools, do NOT invent external tool calls — instead list the missing dependency and propose an alternative using only available tools (internal reasoning, file inspection, user prompts, or requesting a human to provide the missing input).
+
     ## 1. Facts survey
     You will build a comprehensive preparatory survey of which facts we have at our disposal and which ones we still need.
     These "facts" will typically be specific names, dates, values, etc. Your answer should use the below headings:
     ### 1.1. Facts given in the task
     List here the specific facts given in the task that could help you (there might be nothing here).
 
-    ### 1.2. Facts to look up
-    List here any facts that we may need to look up.
-    Also list where to find each of these, for instance a website, a file... - maybe the task contains some sources that you should re-use here.
+    ### 1.2. Facts to look up (only via available tools)
+    List here any facts that we may need to look up and explicitly indicate which available tool (from the provided tool list) you will use to obtain each fact. If no available tool can obtain a needed fact, mark it as "UNAVAILABLE" and describe how you will handle it (derive, estimate, or request human input).
 
     ### 1.3. Facts to derive
     List here anything that we want to derive from the above by logical reasoning, for instance computation or simulation.
 
-    Don't make any assumptions. For each item, provide a thorough reasoning. Do not add anything else on top of three headings above.
+    Don't make any assumptions. For each item, provide a thorough reasoning. Do not add anything else on top of the three headings above.
 
     ## 2. Plan
     Then for the given task, develop a step-by-step high-level plan taking into account the above inputs and list of facts.
-    This plan should involve individual tasks based on the available tools, that if executed correctly will yield the correct answer.
+    This plan MUST only include steps that can be executed using the available tools listed below. For each step, explicitly name which available tool (from the provided tool list) will be used, or mark the step as "pure reasoning" if no tool is required. If a logical step requires a tool not in the list, do not include it; instead include a contingency step that requests the missing data or proposes a workaround using available tools or human input.
     Do not skip steps, do not add any superfluous steps. Only write the high-level plan, DO NOT DETAIL INDIVIDUAL TOOL CALLS.
     After writing the final step of the plan, write the '<end_plan>' tag and stop there.
 
     You can leverage these tools:
-    {%- for tool in tools %}
-    - {{ toToolCallingPrompt(tool) }}
-    {%- endfor %}
-
-    {%- if managedAgents | list %}
-    You can also give tasks to team members.
-    Calling a team member works similarly to calling a tool: provide the task description as the 'task' argument. Since this team member is a real human, be as detailed and verbose as necessary in your task description.
-    You can also include any relevant variables or context using the 'additional_args' argument.
-    Here is a list of the team members that you can call:
-    {%- for agent in managedAgents %}
-    - {{ agent.name }}: {{ agent.description }}
-      - Takes inputs: {{agent.inputs}}
-      - Returns an output of type: {{agent.output_type}}
-    {%- endfor %}
+    {%- if toolPrompt %}
+    {{toolPrompt}}
     {%- endif %}
 
     ---
@@ -174,43 +153,27 @@ planning:
     ```
 
     Below you will find a history of attempts made to solve this task.
-    You will first have to produce a survey of known and unknown facts, then propose a step-by-step high-level plan to solve the task.
-    If the previous tries so far have met some success, your updated plan can build on these results.
-    If you are stalled, you can make a completely new plan starting from scratch.
-
-    Find the task and history below:
+    IMPORTANT CONSTRAINT: Any new or updated plan MUST only rely on tools explicitly listed in the "You can leverage these tools:" block below. Do NOT introduce or plan for tools that are not present in that list (no web search, no external APIs, no notional tools). If previous attempts used unavailable tools, treat those steps as failed dependencies and propose alternatives that use only available tools or request explicit human-provided data.
   update_plan_post_messages: |-
-    Now write your updated facts below, taking into account the above history:
+    Now write your updated facts below, taking into account the above history and the tool availability constraint:
     ## 1. Updated facts survey
     ### 1.1. Facts given in the task
     ### 1.2. Facts that we have learned
-    ### 1.3. Facts still to look up
+    ### 1.3. Facts still to look up (indicate which available tool will be used; mark UNAVAILABLE if none)
     ### 1.4. Facts still to derive
 
     Then write a step-by-step high-level plan to solve the task above.
     ## 2. Plan
-    ### 2. 1. ...
+    ### 2.1. ...
     Etc.
-    This plan should involve individual tasks based on the available tools, that if executed correctly will yield the correct answer.
+    This plan MUST only include steps that can be executed using the tools listed below. For each step, explicitly state which available tool (from the provided list) will be used or mark it as "pure reasoning" if no tool is required. If a required fact cannot be obtained with the available tools, include a mandatory step to request that fact from a human or provide a safe fallback derivation.
     Beware that you have {remaining_steps} steps remaining.
     Do not skip steps, do not add any superfluous steps. Only write the high-level plan, DO NOT DETAIL INDIVIDUAL TOOL CALLS.
     After writing the final step of the plan, write the '<end_plan>' tag and stop there.
 
     You can leverage these tools:
-    {%- for tool in tools %}
-    - {{ toToolCallingPrompt(tool) }}
-    {%- endfor %}
-
-    {%- if managedAgents | list %}
-    You can also give tasks to team members.
-    Calling a team member works similarly to calling a tool: provide the task description as the 'task' argument. Since this team member is a real human, be as detailed and verbose as necessary in your task description.
-    You can also include any relevant variables or context using the 'additional_args' argument.
-    Here is a list of the team members that you can call:
-    {%- for agent in managedAgents %}
-    - {{ agent.name }}: {{ agent.description }}
-      - Takes inputs: {{agent.inputs}}
-      - Returns an output of type: {{agent.output_type}}
-    {%- endfor %}
+    {%- if toolPrompt %}
+    {{toolPrompt}}
     {%- endif %}
 
     Now write your new plan below.
@@ -239,6 +202,6 @@ final_answer:
     CRITICAL ERROR: An agent has failed to complete a task and got stuck in an infinite loop despite having all necessary information. This is a severe execution failure that needs human intervention. Below is the complete agent memory which clearly shows all interactions and information:
   post_messages: |-
     ATTENTION: The agent clearly had all required information to solve this problem but failed to reach a conclusion. This is an AI execution failure.
-    
+
     As the backup system, you MUST now provide a direct answer to the following task using ONLY the information already present in the above memory. Do not apologize for the failure - just solve the problem:
     {{task}}

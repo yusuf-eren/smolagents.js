@@ -281,7 +281,7 @@ export abstract class MultiStepAgent {
     task: string,
     {
       stream = false,
-      reset = true,
+      reset = false,
       images,
       additionalArgs,
       maxSteps,
@@ -499,8 +499,8 @@ export abstract class MultiStepAgent {
     if (!returnedFinalAnswer && this.stepNumber === maxSteps + 1) {
       finalAnswer = await this._handleMaxStepsReached(task, images);
       this.logger.log(chalk.hex('#FFD600')(`Final answer: ${finalAnswer}`), {
-              level: LogLevel.INFO,
-            });
+        level: LogLevel.INFO,
+      });
       yield actionStep!;
     }
     // TODO: Review also this `handleAgentOutputTypes` function.

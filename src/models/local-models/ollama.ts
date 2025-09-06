@@ -137,44 +137,13 @@ export class OllamaModel extends Model {
         )
         .join('\n');
 
-
-        //TODO: Will take this to a .yaml like file with betterly written prompt or use default system prompt
-        // We need another system message aside from agent as ollama does not natively support tool calling similar to the way other models do.
+      //TODO: Will take this to a .yaml like file with betterly written prompt or use default system prompt
+      // We need another system message aside from agent as ollama does not natively support tool calling similar to the way other models do.
       const toolCallSystemMessage = {
         role: 'system',
         content: `You are an AI assistant with access to the following tools:
 
-          ${toolDescriptions}
-
-          IMPORTANT RULES:
-          1. Call ONLY ONE tool at a time
-          2. When you need to use a tool, respond with EXACTLY this JSON format:
-          {
-            "name": "tool_name",
-            "arguments": {"param1": "value1", "param2": "value2"}
-          }
-
-          3. Do NOT include multiple tool calls in one response
-          4. Do NOT add any text before or after the JSON
-          5. For regular conversation (non-tool responses), answer normally without JSON
-
-          Example good tool call:
-          {
-            "name": "get_weather",
-            "arguments": {"city": "Paris"}
-          }
-
-          Example BAD (multiple tools):
-          {
-            "name": "get_weather",
-            "arguments": {"city": "Paris"}
-          },
-          {
-            "name": "get_time", 
-            "arguments": {"city": "Paris"}
-          }
-
-          If you need multiple tools, the system will call you again after the first tool completes.`,
+          ${toolDescriptions}`,
       };
 
       // Insert the system message at the beginning (after any existing system messages)
@@ -199,7 +168,7 @@ export class OllamaModel extends Model {
    */
   private createRequestOptions(): Record<string, any> {
     const options: Record<string, any> = {};
-    
+
     if (this.temperature !== undefined) options['temperature'] = this.temperature;
     if (this.top_p !== undefined) options['top_p'] = this.top_p;
     if (this.num_predict !== undefined) options['num_predict'] = this.num_predict;

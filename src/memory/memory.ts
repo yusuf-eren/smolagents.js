@@ -37,7 +37,30 @@ export class AgentMemory {
     if (this.steps.length === 0) {
       return [];
     }
-    return this.steps.map(step => step.toJSON());
+    return this.steps.map(step => {
+      try {
+        return step.toJSON();
+      } catch (error) {
+        // Handle case where toJSON() fails due to malformed JSON in content
+        const rawStep: Record<string, any> = { ...step };
+
+        // Clean any properties that might contain markdown code blocks
+        Object.keys(rawStep).forEach(key => {
+          if (typeof rawStep[key] === 'string') {
+            rawStep[key] = rawStep[key]
+              .replace(/```+json\s*/gi, '')
+              .replace(/```+/g, '')
+              .trim();
+          }
+        });
+
+        // Return the cleaned object or a fallback representation
+        return {
+          type: step.constructor.name,
+          cleanedContent: rawStep,
+        };
+      }
+    });
   }
 
   /**
@@ -47,7 +70,6 @@ export class AgentMemory {
    *                   Careful: will increase log length exponentially. Use only for debugging.
    */
   replay(logger: AgentLogger, detailed: boolean = false): void {
-
     // Store the current logger level as user may have closed it
     var loggerLevel = logger.level;
 
